@@ -34,6 +34,16 @@ RMRD    = config['directories']['reads_vs_final_assemblies']
 PSEQDIR = config['directories']['prinseq']
 STATS   = config['directories']['statistics']
 
+
+# do we want to do host removal?
+
+if 'host_removal' in config['directories']:
+    use rule * from rules/deconseq.snakefile
+    # do something with the file names after prinseq
+    # these need to become our names for the 
+    # rest of the input
+
+
 # A Snakemake regular expression matching the forward mate FASTQ files.
 # the comma after SAMPLES is important!
 SAMPLES,EXTENSIONS, = glob_wildcards(os.path.join(READDIR, '{sample}_R1.{extn}'))
@@ -87,6 +97,11 @@ rule prinseq:
                     -fastq {input.r1} \
                     -fastq2 {input.r2};
         """
+
+# Here, we need to add an option to integrate rules/deconseq.snakefile
+# so that we can move from {sample}_good_out_R1.fastq to 
+# os.path.join(outdir, '{sample}_singletons_' + hostname + '.unmapped.fastq')
+
 
 rule megahit_assemble:
     input:
