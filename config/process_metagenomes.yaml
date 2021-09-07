@@ -1,0 +1,12 @@
+# These are the directories where we read the data and store the output
+# feel free to change these names
+directories :
+        Reads: "fastq"
+        round1_assembly_output : "assembly.1"
+        round1_contig_read_mapping : "reads.contigs.1"
+        round2_unassembled_reads : "unassembled_reads"
+        round2_assembly_output : "reassembled_reads"
+        reads_vs_final_assemblies: "reads_vs_final_assemblies"
+        prinseq: "QC"
+        statistics: "statistics"
+        combined_contig_merging : "final.combined_contigs"
