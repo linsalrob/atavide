@@ -60,6 +60,8 @@ FQEXTN = EXTENSIONS[0]
 PATTERN_R1 = '{sample}_R1.' + FQEXTN
 PATTERN_R2 = '{sample}_R2.' + FQEXTN
 
+use rule * from rules/kraken_focus.snakefile
+
 
 rule all:
     input:
@@ -69,7 +71,18 @@ rule all:
         os.path.join(CCMO, "flye.log"),
         os.path.join(STATS, "final_assembly.txt"),
         expand(os.path.join(RMRD, "{sample}.final_contigs.bam.bai"), sample=SAMPLES),
-        os.path.join(STATS, "sample_coverage.tsv")
+        os.path.join(STATS, "sample_coverage.tsv"),
+        # these rules are from rules/kraken_focus.snakefile 
+        expand(
+            [
+                os.path.join(OUTDIR, "{sample}", "focus", "output_All_levels.csv"),
+                os.path.join(OUTDIR, "{sample}", "superfocus", "output_all_levels_and_function.xls"),
+                os.path.join(OUTDIR, "{sample}", "kraken", "{sample}.report.tsv"),
+                os.path.join(OUTDIR, "{sample}", "kraken", "{sample}.output.tsv"),
+            ],
+               sample=SAMPLES),
+        os.path.join(OUTDIR, "all_taxonomy.tsv")
+
 
 
 rule prinseq:
