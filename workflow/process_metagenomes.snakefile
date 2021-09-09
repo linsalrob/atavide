@@ -34,11 +34,10 @@ RMRD    = config['directories']['reads_vs_final_assemblies']
 PSEQDIR = config['directories']['prinseq']
 STATS   = config['directories']['statistics']
 
-
 # do we want to do host removal?
 
 if 'host_removal' in config['directories']:
-    use rule * from rules/deconseq.snakefile
+    include: "rules/deconseq.snakefile"
     # do something with the file names after prinseq
     # these need to become our names for the 
     # rest of the input
@@ -60,8 +59,7 @@ FQEXTN = EXTENSIONS[0]
 PATTERN_R1 = '{sample}_R1.' + FQEXTN
 PATTERN_R2 = '{sample}_R2.' + FQEXTN
 
-use rule * from rules/kraken_focus.snakefile
-
+include: "rules/kraken_focus.snakefile"
 
 rule all:
     input:

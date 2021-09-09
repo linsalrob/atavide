@@ -32,7 +32,7 @@ if len(SAMPLES) == 0:
     sys.exit()
 
 
-rule all:
+rule Kraken_F_SF_all:
     input:
         expand(
             [
