@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Renumber multiple fasta files, starting with either number 1 or a number provided on the command line.
