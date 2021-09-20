@@ -86,12 +86,12 @@ FQEXTN = EXTENSIONS[0]
 PATTERN_R1 = '{sample}_R1.' + FQEXTN
 PATTERN_R2 = '{sample}_R2.' + FQEXTN
 
-# read the rules for running kraken, focus, and superfocus. 
-include: "rules/kraken_focus.snakefile"
+# read the rules for running kraken, focus, superfocus, singlem, etc. 
+include: "rules/read_annotations.snakefile"
 
 rule all:
     input:
-        # these rules are from rules/kraken_focus.snakefile 
+        # these rules are from rules/read_annotations.snakefile
         expand(
             [
                 os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
