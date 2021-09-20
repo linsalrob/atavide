@@ -10,7 +10,7 @@ import argparse
 import re
 from taxon import taxonomy_hierarchy_as_list, get_taxonomy_db
 from taxon.Error import EntryNotInDatabaseError
-from roblib import colors
+from atavide_lib import colors
 
 __author__ = 'Rob Edwards'
 __copyright__ = 'Copyright 2020, Rob Edwards'

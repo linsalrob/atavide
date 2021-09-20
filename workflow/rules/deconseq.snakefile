@@ -15,22 +15,20 @@ import os
 # set this to the path to the indexed host genome
 # that you want to filter out. This should be indexed
 # with `bowtie2-build`, and should be just the base 
-# filename of the .1.bt2, .2.bt2, .3.bt2 indexes etc.
-host_bt_index = "/path/to/human"   
+# filename of the .1.bt2, .2.bt2, indices or the bt2l for large
 
-# set this to the host name that we will use in the output names
-hostname = "human"
 
+host_bt_index = os.path.join(config['directories']['host_dbpath'], config['options']['host_dbname'])
 
 # set this to the location where you would like the results
 # written. We will make the directory if it doesn't exist
-outdir = "host_mapped"
+INTERIMDIR = "host_mapped"
 
 
 if not os.path.exists(host_bt_index + ".1.bt2") and not os.path.exists(host_bt_index + ".1.bt2l"):
     sys.stderr.write(f"ERROR: Could not find the bowtie2 indexes for {host_bt_index}\n")
     sys.stderr.write(f" - Did you build them with bowtie2-build?\n")
-    sys.stderr.write(f" - You may need to edit `host_bt_index` in the snakefile\n")
+    sys.stderr.write(f" - You may need to edit `host_dbpath` and `host_dbname` in the snakefile config\n")
     sys.exit()
 
 
@@ -41,72 +39,98 @@ rule btmap:
         s1 = os.path.join(PSEQDIR, "{sample}_single_out_R1.fastq"),
         s2 = os.path.join(PSEQDIR, "{sample}_single_out_R2.fastq"),
     output:
-        os.path.join(outdir, '{sample}.' + hostname + '.bam')
+        os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     params:
         idx = host_bt_index
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
+    resources:
+        mem_mb=64000,
+        cpus=16
     shell:
         """
-		bowtie2 -p {threads} -x {params.idx} -1 {input.r1} -2 {input.r2} | samtools view -bh | samtools sort -o {output} -
+		bowtie2 --mm -p {resources.cpus} -x {params.idx} -1 {input.r1} -2 {input.r2} \
+         | samtools view -@ {resources.cpus} -bh | samtools sort -o {output} -
         """
 
 rule R1_reads_map_to_ref:
     input:
-        os.path.join(outdir, '{sample}.' + hostname + '.bam')
+        os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
-        os.path.join(outdir, PATTERN_R1 + "_" + hostname + '.mapped.fastq')
+        os.path.join(INTERIMDIR, "{sample}_R1_mapped_to_host.fastq")
+    resources:
+        mem_mb=16000,
+        cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
-        "samtools fastq -G 12 -f 65 {input} > {output}"
+        "samtools fastq -@ {resources.cpus} -G 12 -f 65 {input} > {output}"
 
 rule R2_reads_map_to_ref:
     input:
-        os.path.join(outdir, '{sample}.' + hostname + '.bam')
+        os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
-        os.path.join(outdir, PATTERN_R2 + "_" + hostname + '.mapped.fastq')
+        os.path.join(INTERIMDIR, "{sample}_R2_mapped_to_host.fastq")
+    resources:
+        mem_mb=16000,
+        cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
-        "samtools fastq  -G 12 -f 129 {input} > {output}"
+        "samtools fastq -@ {resources.cpus} -G 12 -f 129 {input} > {output}"
 
 rule single_reads_map_to_ref:
     input:
-        os.path.join(outdir, '{sample}.' + hostname + '.bam')
+        os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
-        os.path.join(outdir, '{sample}_singletons_' + hostname + '.mapped.fastq')
+        os.path.join(INTERIMDIR, "{sample}_S_mapped_to_host.fastq")
+    resources:
+        mem_mb=16000,
+        cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
-        "samtools fastq  -F 5 {input} > {output}"
-
+        "samtools fastq -@ {resources.cpus} -F 5 {input} > {output}"
+        
 rule R1_unmapped:
     input:
-        os.path.join(outdir, '{sample}.' + hostname + '.bam')
+        os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
-        os.path.join(outdir, PATTERN_R1 + "_" + hostname + '.unmapped.fastq')
+        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+    resources:
+        mem_mb=16000,
+        cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
-        "samtools fastq  -f 77  {input} > {output}"
+        "samtools fastq -@ {resources.cpus} -f 77  {input} > {output}"
 
 rule R2_unmapped:
     input:
-        os.path.join(outdir, '{sample}.' + hostname + '.bam')
+        os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
-        os.path.join(outdir, PATTERN_R2 + "_" + hostname + '.unmapped.fastq')
+        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+    resources:
+        mem_mb=16000,
+        cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
-        "samtools fastq  -f 141 {input} > {output}"
+        "samtools fastq -@ {resources.cpus} -f 141 {input} > {output}"
 
 rule single_reads_unmapped:
     input:
-        os.path.join(outdir, '{sample}.' + hostname + '.bam')
+        os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
-        os.path.join(outdir, '{sample}_singletons_' + hostname + '.unmapped.fastq')
+        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
+        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
+    resources:
+        mem_mb=16000,
+        cpus=8
     shell:
-        "samtools fastq  -f 4 -F 1  {input} > {output}"
+        """
+        samtools fastq -@ {resources.cpus} -f 4 -F 1  {input} > {output.s1} &&
+        touch {output.s2}
+        """

@@ -1,18 +1,23 @@
 """
 
-Running krken, focus, and superfocus on deepthought
+Snakemake rule to run several read-based annotation systems
+including kraken, focus, super-focus and singlem.
 
-Note that we only run these on the R1 reads, though we could either
-do it on both or add that as an option
+For focus/superfocus we need a directory so we make hard links
 
-
-Rob Edwards, Sept 2021
+For kraken and singlem
 
 """
 
 
 import os
 import sys
+
+# TODO
+# we have a database linked here: 
+#       db = "/home/edwa0468/ncbi/taxonomy/taxonomy.sqlite3"
+# and we need to do something with this!
+
 
 
 # set this to whatever the name of your directory
@@ -28,17 +33,21 @@ OUTDIR  = 'ReadAnnotations'
 # just check there is something to actually do!
 if len(SAMPLES) == 0:
     sys.stderr.write("FATAL: We could not detect any samples at all.\n")
-    sys.stderr.write(f"Do you have a directory called {PSEQDIR} with some fastq files in it?\n")
+    sys.stderr.write(f"Do you have a directory called {PSEQDIR_TWO} with some fastq files in it?\n")
     sys.exit()
 
 
-rule Kraken_F_SF_all:
+rule read_annotation_all:
+    """
+    This rule is probably not used unless you use this as a standalone snakemake script!
+    """
     input:
         expand(
             [
                 os.path.join(OUTDIR, "{sample}", "focus", "output_All_levels.csv"),
                 os.path.join(OUTDIR, "{sample}", "superfocus", "output_all_levels_and_function.xls"),
                 os.path.join(OUTDIR, "{sample}", "kraken", "{sample}.report.tsv"),
+                os.path.join(OUTDIR, "{sample}", "singlem", "singlem_otu_table.tsv"),
                 os.path.join(OUTDIR, "{sample}", "kraken", "{sample}.output.tsv"),
             ],
                sample=SAMPLES),
@@ -54,7 +63,7 @@ rule Kraken_F_SF_all:
 
 rule link_psq_good:
     input:
-        r1 = os.path.join(PSEQDIR, "{sample}_good_out_R1.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq")
     output:
         d = directory(os.path.join(OUTDIR, "{sample}", "prinseq_good")),
         f = os.path.join(OUTDIR, "{sample}", "prinseq_good", "{sample}.good_out_R1.fastq")
@@ -83,14 +92,17 @@ rule run_focus:
         o = temporary(os.path.join(OUTDIR, "{sample}", "focus", "output_Order_tabular.csv")),
         sp = temporary(os.path.join(OUTDIR, "{sample}", "focus", "output_Species_tabular.csv"))
     resources:
-        cpus=2,
-        mem_mb=4000
+        cpus=8,
+        mem_mb=16000
+    conda:
+        "../envs/focus.yaml"
     shell:
         """
         focus -q {input} -o {output.d} -t {resources.cpus}
         """
 
-
+# TODO
+# We should remove the -b once the SUPERFOCUS_DB environment variable works
 
 rule run_superfocus:
     input:
@@ -103,22 +115,28 @@ rule run_superfocus:
         l2 = temporary(os.path.join(OUTDIR, "{sample}", "superfocus", "output_subsystem_level_2.xls")),
         l3 = temporary(os.path.join(OUTDIR, "{sample}", "superfocus", "output_subsystem_level_3.xls")),
     resources:
-        cpus=4,
-        mem_mb=16000
+        cpus=16,
+        mem_mb=32000,
+        time=7200
+    conda:
+        "../envs/superfocus.yaml"
     shell:
         """
-        superfocus -q {input} -dir {output.d} -a diamond -t {resources.cpus}
+        superfocus -b $HOME/superfocus_db/version2 -q {input} -dir {output.d} -a diamond -t {resources.cpus}
         """
 
 rule run_kraken:
     input:
-        r1 = os.path.join(OUTDIR, "{sample}", "prinseq_good", "{sample}.good_out_R1.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
     output:
         rt = os.path.join(OUTDIR, "{sample}", "kraken", "{sample}.report.tsv"),
         ot = os.path.join(OUTDIR, "{sample}", "kraken", "{sample}.output.tsv")
     resources:
-        cpus=4,
+        cpus=8,
         mem_mb=400000
+    conda:
+        "../envs/kraken.yaml"
     shell:
         """
         kraken2 --report {output.rt} \
@@ -127,6 +145,29 @@ rule run_kraken:
                 {input.r1}
         """
 
+rule run_singlem:
+    input:
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
+    output:
+        d = directory(os.path.join(OUTDIR, "{sample}", "singlem")),
+        otu = os.path.join(OUTDIR, "{sample}", "singlem", "singlem_otu_table.tsv")
+    conda:
+        "../envs/singlem.yaml"
+    resources:
+        cpus=8,
+        mem_mb=40000
+    shell:
+        """
+        mkdir --parents {output.d};
+        singlem pipe --forward {input.r1} --reverse {input.r2} --otu_table {output.otu} --output_extras --threads {resources.cpus}
+        """
+
+"""
+In the rules below we use the m8 files from superfocus
+to crate taxonomy tables.
+"""
+
 rule superfocus_taxonomy:
     input:
         m8 = os.path.join(OUTDIR, "{sample}", "superfocus", "{sample}.good_out_R1.fastq_alignments.m8"),
@@ -134,9 +175,11 @@ rule superfocus_taxonomy:
         os.path.join(OUTDIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy")
     params:
         db = "/home/edwa0468/ncbi/taxonomy/taxonomy.sqlite3"
+    resources:
+        mem_mb=16000
     shell:
         """
-        python3 ~/GitHubs/EdwardsLab/superfocus_all/superfocus_to_taxonomy.py -f {input} --tophit -d {params.db} > {output}
+        python3 /home/edwa0468/GitHubs/atavide/workflow/scripts/superfocus_to_taxonomy.py -f {input} --tophit -d {params.db} > {output}
         """
 
 rule count_sf_taxonomy:
@@ -146,6 +189,9 @@ rule count_sf_taxonomy:
         os.path.join(OUTDIR, "{sample}", "superfocus", "{sample}_tax_counts.tsv")
     params:
         s = "{sample}"
+    resources:
+        cpus=4,
+        mem_mb=16000
     shell:
         """
         cut -d$'\t' -f 2- {input} | sed -e 's/\t/|/g' | \
@@ -160,7 +206,7 @@ rule join_superfocus_taxonomy:
         os.path.join(OUTDIR, "all_taxonomy.tsv")
     shell:
         """
-        ~/GitHubs/EdwardsLab/bin/joinlists.pl -h -z {input} > {output}
+        perl /home/edwa0468/GitHubs/atavide/workflow/scripts/joinlists.pl -h -z {input} > {output}
         """
 
 

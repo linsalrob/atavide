@@ -4,7 +4,6 @@
 Renumber multiple fasta files, starting with either number 1 or a number provided on the command line.
 At the end, we output the last number written.
 
-Note that this uses the roblib library that is available from this github repository.
 
 This version will combine multiple fasta files into a single output. 
 """
@@ -12,7 +11,7 @@ This version will combine multiple fasta files into a single output.
 import os
 import sys
 import argparse
-from lib import read_fasta, colours 
+from atavide_lib import read_fasta, colours 
 
 __author__ = 'Rob Edwards'
 

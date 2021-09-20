@@ -34,13 +34,40 @@ RMRD    = config['directories']['reads_vs_final_assemblies']
 PSEQDIR = config['directories']['prinseq']
 STATS   = config['directories']['statistics']
 
+
+# what is the directory of process_metagenomes.snakefile.
+# We need to add that to the pythonpath and also
+# use it for scripts
+
+PMSDIR = workflow.basedir
+# append to pythonpath
+sys.path.append(PMSDIR)
+
 # do we want to do host removal?
 
-if 'host_removal' in config['directories']:
+# we use an additional PSEQDIR variables here. PSEQDIR is the regular output from prinseq
+# if we are NOT doing host removal PSEQDIR AND PSEQDIR_TWO are the same
+# if we ARE doing host removal, they are not the same and so we have to make the 
+# second path
+if 'host_dbpath' in config['directories'] and config['directories']['host_dbpath']:
+    if not 'host_dbname' in config['options']:
+        sys.stderr.write(f"ERROR: You have set host_dbpath as {config['directories']['host_dbpath']} but not defined the db_name\n")
+        sys.exit(0)
+   
+    if not os.path.exists(
+        os.path.join(config['directories']['host_dbpath'], f"{config['options']['host_dbname']}.1.bt2l") or
+        os.path.join(config['directories']['host_dbpath'], f"{config['options']['host_dbname']}.1.bt2")
+    ):
+        sys.stderr.write(f"Error: don't seem to be able to find a bowtie2 index for {config['options']['host_dbname']}\n")
+        sys.exit(0)
+
+    PSEQDIR_TWO = f"{PSEQDIR}_after_hostremoval"
+
+    PSEQDIR = f"{PSEQDIR}_before_hostremoval"
+
     include: "rules/deconseq.snakefile"
-    # do something with the file names after prinseq
-    # these need to become our names for the 
-    # rest of the input
+else:
+    PSEQDIR_TWO = PSEQDIR
 
 
 # A Snakemake regular expression matching the forward mate FASTQ files.
@@ -59,27 +86,28 @@ FQEXTN = EXTENSIONS[0]
 PATTERN_R1 = '{sample}_R1.' + FQEXTN
 PATTERN_R2 = '{sample}_R2.' + FQEXTN
 
+# read the rules for running kraken, focus, and superfocus. 
 include: "rules/kraken_focus.snakefile"
 
 rule all:
     input:
-        #os.path.join(ASSDIR, "round1_contigs.fa")
-        #expand(os.path.join(CRMDIR, "{sample}.contigs.bam"), sample=SAMPLES)
-        os.path.join(REASSM, "merged_contigs.fa"),
-        os.path.join(CCMO, "flye.log"),
-        os.path.join(STATS, "final_assembly.txt"),
-        expand(os.path.join(RMRD, "{sample}.final_contigs.bam.bai"), sample=SAMPLES),
-        os.path.join(STATS, "sample_coverage.tsv"),
         # these rules are from rules/kraken_focus.snakefile 
         expand(
             [
+                os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
                 os.path.join(OUTDIR, "{sample}", "focus", "output_All_levels.csv"),
-                os.path.join(OUTDIR, "{sample}", "superfocus", "output_all_levels_and_function.xls"),
+                os.path.join(OUTDIR, "{sample}", "superfocus", "output_all_levels_and_function.xls"), ## TODO note we can not use superfocus at the moment until the environmental variable stuff is incorporated
                 os.path.join(OUTDIR, "{sample}", "kraken", "{sample}.report.tsv"),
                 os.path.join(OUTDIR, "{sample}", "kraken", "{sample}.output.tsv"),
+                os.path.join(OUTDIR, "{sample}", "singlem", "singlem_otu_table.tsv"),
+                os.path.join(RMRD, "{sample}.final_contigs.bam.bai")
             ],
                sample=SAMPLES),
-        os.path.join(OUTDIR, "all_taxonomy.tsv")
+        os.path.join(OUTDIR, "all_taxonomy.tsv"),
+        os.path.join(REASSM, "merged_contigs.fa"),
+        os.path.join(CCMO, "flye.log"),
+        os.path.join(STATS, "final_assembly.txt"),
+        os.path.join(STATS, "sample_coverage.tsv")
 
 
 
@@ -116,10 +144,10 @@ rule prinseq:
 
 rule megahit_assemble:
     input:
-        r1 = os.path.join(PSEQDIR, "{sample}_good_out_R1.fastq"),
-        r2 = os.path.join(PSEQDIR, "{sample}_good_out_R2.fastq"),
-        s1 = os.path.join(PSEQDIR, "{sample}_single_out_R1.fastq"),
-        s2 = os.path.join(PSEQDIR, "{sample}_single_out_R2.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
+        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
     output:
         os.path.join(ASSDIR, "{sample}/final.contigs.fa"),
         os.path.join(ASSDIR, "{sample}/log"),
@@ -131,7 +159,8 @@ rule megahit_assemble:
         odir = directory(os.path.join(ASSDIR, '{sample}'))
     resources:
         mem_mb=64000,
-        cpus=16
+        cpus=16,
+        time=7200
     conda:
         "envs/megahit.yaml"
     shell:
@@ -153,9 +182,11 @@ rule combine_contigs:
     output:
         contigs = os.path.join(ASSDIR, "round1_contigs.fa"),
         ids = os.path.join(ASSDIR, "round1_contigs.ids")
+    params:
+        sct = os.path.join(PMSDIR, "scripts/renumber_merge_fasta.py")
     shell:
         """
-        python3 scripts/renumber_merge_fasta.py -f {input} -o {output.contigs} -i {output.ids} -v
+        python3 {params.sct} -f {input} -o {output.contigs} -i {output.ids} -v
         """
 
 
@@ -200,10 +231,10 @@ rule map_reads:
         idx4 = os.path.join(CRMDIR, "round1_contigs.4.bt2l"),
         ridx1 = os.path.join(CRMDIR, "round1_contigs.rev.1.bt2l"),
         ridx2 = os.path.join(CRMDIR, "round1_contigs.rev.2.bt2l"),
-        r1 = os.path.join(PSEQDIR, "{sample}_good_out_R1.fastq"),
-        r2 = os.path.join(PSEQDIR, "{sample}_good_out_R2.fastq"),
-        s1 = os.path.join(PSEQDIR, "{sample}_single_out_R1.fastq"),
-        s2 = os.path.join(PSEQDIR, "{sample}_single_out_R2.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
+        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
     params:
         contigs = os.path.join(CRMDIR, "round1_contigs")
     output:
@@ -215,7 +246,7 @@ rule map_reads:
         "envs/bowtie.yaml"
     shell:
         """
-        bowtie2 -x {params.contigs} -1 {input.r1} -2 {input.r2} \
+        bowtie2 --mm -x {params.contigs} -1 {input.r1} -2 {input.r2} \
         -U {input.s1} -U {input.s2} --threads {resources.cpus} | \
         samtools view -bh | samtools sort -o {output} -
         """
@@ -238,14 +269,17 @@ rule umapped_left_reads:
         os.path.join(UNASSM, "{sample}.unassembled.R1.fastq")
     conda:
         "envs/bowtie.yaml"
+    resources:
+        mem_mb=32000,
+        cpus=8
     shell:
         """
-        samtools view -h {input} | 
+        samtools view -@ {resources.cpus} -h {input} | 
                 awk 'BEGIN {{FS="\t"; OFS="\t"}} 
                 {{if (/^@/ && substr($2, 3, 1)==":") {{print}} 
                 else if (and($2, 0x1) && and($2, 0x40) && 
                 (and($2, 0x4) || and($2, 0x8))) {{print}}}}' \
-                | samtools bam2fq > {output}
+                | samtools bam2fq -@ {resources.cpus} > {output}
         """
 
 rule umapped_right_reads:
@@ -258,14 +292,17 @@ rule umapped_right_reads:
         os.path.join(UNASSM, "{sample}.unassembled.R2.fastq")
     conda:
         "envs/bowtie.yaml"
+    resources:
+        mem_mb=32000,
+        cpus=8
     shell:
         """
-        samtools view  -h {input} | 
+        samtools view -@ {resources.cpus} -h {input} | 
                 awk 'BEGIN {{FS="\t"; OFS="\t"}} 
                 {{if (/^@/ && substr($2, 3, 1)==":") {{print}} 
                 else if (and($2, 0x1) && and($2, 0x80) && 
                 (and($2, 0x4) || and($2, 0x8))) {{print}}}}' \
-                | samtools bam2fq > {output}
+                | samtools bam2fq -@ {resources.cpus} > {output}
         """
 
 rule umapped_single_reads:
@@ -278,8 +315,11 @@ rule umapped_single_reads:
         os.path.join(UNASSM, "{sample}.unassembled.singles.fastq")
     conda:
         "envs/bowtie.yaml"
+    resources:
+        mem_mb=32000,
+        cpus=8
     shell:
-            "samtools fastq -f 4 -F 1 {input} > {output}"
+            "samtools fastq -@ {resources.cpus} -f 4 -F 1 {input} > {output}"
 
 """
 We concatanate the unassembled reads into separate R1/R2/s files so
@@ -342,8 +382,9 @@ rule assemble_unassembled:
     conda:
         "envs/megahit.yaml"
     resources:
-        mem_mb=64000,
-        cpus=32
+        mem_mb=128000,
+        cpus=32,
+        time=7200
     shell:
         """
         rmdir {params.odir};
@@ -355,7 +396,7 @@ Combine all the contigs and use metaflye to merge the subassmblies
 """
 
 
-rule concatentate_all_assemblies:
+rule concatenate_all_assemblies:
     """
     Again we take all contigs produced by megahit and combine them into a single (redundant)
     fasta file. This also creates a file called merged_contigs.ids that has the 
@@ -368,9 +409,11 @@ rule concatentate_all_assemblies:
     output:
         contigs = os.path.join(REASSM, "merged_contigs.fa"),
         ids = os.path.join(REASSM, "merged_contigs.ids") 
+    params:
+        sct = os.path.join(PMSDIR, "scripts/renumber_merge_fasta.py")
     shell:
         """
-        python3 scripts/renumber_merge_fasta.py -f {input} -o {output.contigs} -i {output.ids} -v
+        python3 {params.sct} -f {input} -o {output.contigs} -i {output.ids} -v
         """
 
 rule merge_assemblies_with_flye:
@@ -400,9 +443,11 @@ rule final_assembly_stats:
         os.path.join(CCMO, "assembly.fasta")
     output:
         os.path.join(STATS, "final_assembly.txt")
+    params:
+        sct = os.path.join(PMSDIR, "scripts/countfasta.py")
     shell:
         """
-        python3 scripts/countfasta.py -f {input} > {output}
+        python3 {params.sct} -f {input} > {output}
         """
 
 
@@ -422,8 +467,8 @@ rule index_final_contigs:
         rid1 = temporary( os.path.join(RMRD, "final_contigs" + ".rev.1.bt2l")),
         rid2 = temporary( os.path.join(RMRD, "final_contigs" + ".rev.2.bt2l"))
     resources:
-        mem_mb=20000,
-        cpus=8
+        mem_mb=64000,
+        cpus=16
     conda:
         "envs/bowtie.yaml"
     shell:
@@ -447,10 +492,10 @@ rule map_reads_to_final:
         idx4 = os.path.join(RMRD, "final_contigs" + ".4.bt2l"),
         rid1 = os.path.join(RMRD, "final_contigs" + ".rev.1.bt2l"),
         rid2 = os.path.join(RMRD, "final_contigs" + ".rev.2.bt2l"),
-        r1 = os.path.join(PSEQDIR, "{sample}_good_out_R1.fastq"),
-        r2 = os.path.join(PSEQDIR, "{sample}_good_out_R2.fastq"),
-        s1 = os.path.join(PSEQDIR, "{sample}_single_out_R1.fastq"),
-        s2 = os.path.join(PSEQDIR, "{sample}_single_out_R2.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
+        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
     params:
         contigs = os.path.join(RMRD, "final_contigs")
     output:
@@ -462,7 +507,7 @@ rule map_reads_to_final:
         "envs/bowtie.yaml"
     shell:
         """
-        bowtie2 -x {params.contigs} -1 {input.r1} -2 {input.r2} \
+        bowtie2 --mm -x {params.contigs} -1 {input.r1} -2 {input.r2} \
         -U {input.s1} -U {input.s2} --threads {resources.cpus} | \
         samtools view -bh | samtools sort -o {output} -
         """
@@ -498,9 +543,11 @@ rule make_table:
         os.path.join(STATS, "sample_coverage.tsv")
     resources:
         mem_mb=64000
+    params:
+        sct = os.path.join(PMSDIR, "scripts/joinlists.pl")
     shell:
         """
-        perl scripts/joinlists.pl -t {input} > {output}
+        perl {params.sct} -t {input} > {output}
         """
 
 rule count_contig_lengths:
@@ -508,8 +555,10 @@ rule count_contig_lengths:
         os.path.join(CCMO, "assembly.fasta")
     output:
         os.path.join(STATS, "sequence_lengths.tsv")
+    params:
+        sct = os.path.join(PMSDIR, "scripts/countfasta.py")
     shell:
         """
-        python3 scripts/countfasta.py -f {input} -ln > {output}
+        python3 {params.sct} -f {input} -ln > {output}
         """
 
