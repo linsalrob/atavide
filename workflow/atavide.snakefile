@@ -103,7 +103,7 @@ rule all:
                 os.path.join(RMRD, "{sample}.final_contigs.bam.bai")
             ],
                sample=SAMPLES),
-        os.path.join(RBADIR, "superfocus_functions.tsv")
+        os.path.join(RBADIR, "superfocus_functions.tsv"),
         os.path.join(RBADIR, "superfocus_taxonomy.tsv"),
         os.path.join(REASSM, "merged_contigs.fa"),
         os.path.join(CCMO, "flye.log"),
