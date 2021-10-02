@@ -34,10 +34,10 @@ if not os.path.exists(host_bt_index + ".1.bt2") and not os.path.exists(host_bt_i
 
 rule btmap:
     input:
-        r1 = os.path.join(PSEQDIR, "{sample}_good_out_R1.fastq"),
-        r2 = os.path.join(PSEQDIR, "{sample}_good_out_R2.fastq"),
-        s1 = os.path.join(PSEQDIR, "{sample}_single_out_R1.fastq"),
-        s2 = os.path.join(PSEQDIR, "{sample}_single_out_R2.fastq"),
+        r1 = os.path.join(PSEQDIR, "{sample}_good_out_R1.fastq.gz"),
+        r2 = os.path.join(PSEQDIR, "{sample}_good_out_R2.fastq.gz"),
+        s1 = os.path.join(PSEQDIR, "{sample}_single_out_R1.fastq.gz"),
+        s2 = os.path.join(PSEQDIR, "{sample}_single_out_R2.fastq.gz"),
     output:
         os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     params:
@@ -134,3 +134,27 @@ rule single_reads_unmapped:
         samtools fastq -@ {resources.cpus} -f 4 -F 1  {input} > {output.s1} &&
         touch {output.s2}
         """
+
+rule compress_host_mapped_sequences:
+    input:
+        os.path.join(INTERIMDIR, "{sample}_R1_mapped_to_host.fastq"),
+        os.path.join(INTERIMDIR, "{sample}_R2_mapped_to_host.fastq"),
+        os.path.join(INTERIMDIR, "{sample}_S_mapped_to_host.fastq"),
+        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+        os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
+        os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
+    output:
+        os.path.join(INTERIMDIR, "{sample}_R1_mapped_to_host.fastq"),
+        os.path.join(INTERIMDIR, "{sample}_R2_mapped_to_host.fastq"),
+        os.path.join(INTERIMDIR, "{sample}_S_mapped_to_host.fastq"),
+        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+        os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
+        os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
+    shell:
+        """
+        for F in {input}; do gzip $F; done
+        """
+
+

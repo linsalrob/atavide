@@ -45,3 +45,15 @@ rule join_superfocus_taxonomy:
         """
 
 
+rule compress_superfocus_taxonomy:
+    input:
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_tax_counts.tsv")
+    output:
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy.zip"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_tax_counts.tsv.zip")
+    shell:
+        """
+        for F in {input}; do zip $F.zip $F; done
+        """
+

@@ -22,7 +22,7 @@ import os
 import sys
 import socket
 
-#configfile: "config/process_metagenomes.yaml"
+# configfile: "config/process_metagenomes.yaml"
 
 READDIR = config['directories']['Reads']
 ASSDIR  = config['directories']['round1_assembly_output']
@@ -88,27 +88,28 @@ PATTERN_R2 = '{sample}_R2.' + FQEXTN
 
 # read the rules for running kraken, focus, superfocus, singlem, etc. 
 include: "rules/read_annotations.snakefile"
+include: "rules/compress_outputs.snakefile"
 
 rule all:
     input:
         # these rules are from rules/read_annotations.snakefile
         expand(
             [
-                os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
-                os.path.join(RBADIR, "{sample}", "focus", "output_All_levels.csv"),
-                os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls"), ## TODO note we can not use superfocus at the moment until the environmental variable stuff is incorporated
-                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv"),
-                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv"),
-                os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv"),
+                os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
+                os.path.join(RBADIR, "{sample}", "focus", "output_All_levels.csv.zip"),
+                os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"), ## TODO note we can not use superfocus at the moment until the environmental variable stuff is incorporated
+                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv.zip"),
+                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv.zip"),
+                os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv.zip"),
                 os.path.join(RMRD, "{sample}.final_contigs.bam.bai")
             ],
                sample=SAMPLES),
-        os.path.join(RBADIR, "superfocus_functions.tsv"),
-        os.path.join(RBADIR, "superfocus_taxonomy.tsv"),
+        os.path.join(RBADIR, "superfocus_functions.tsv.zip"),
+        os.path.join(RBADIR, "superfocus_taxonomy.tsv.zip"),
         os.path.join(REASSM, "merged_contigs.fa"),
         os.path.join(CCMO, "flye.log"),
-        os.path.join(STATS, "final_assembly.txt"),
-        os.path.join(STATS, "sample_coverage.tsv")
+        os.path.join(STATS, "final_assembly.txt.zip"),
+        os.path.join(STATS, "sample_coverage.tsv.zip")
 
 
 
@@ -145,10 +146,10 @@ rule prinseq:
 
 rule megahit_assemble:
     input:
-        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
-        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
-        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
-        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq.gz"),
+        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq.gz"),
+        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq.gz")
     output:
         os.path.join(ASSDIR, "{sample}/final.contigs.fa"),
         os.path.join(ASSDIR, "{sample}/log"),
@@ -161,14 +162,16 @@ rule megahit_assemble:
     resources:
         mem_mb=64000,
         cpus=16,
-        time=7200
+        time=7200,
+        gpu=1,
+        partition="hpc_gpu"
     conda:
         "envs/megahit.yaml"
     shell:
         """
         rmdir {params.odir} ; 
         megahit -1 {input.r1} -2 {input.r2} -r {input.s1} -r {input.s2} \
-                -o {params.odir} -t {resources.cpus}
+                -o {params.odir} -t {resources.cpus} --use-gpu -mem-flag 2
         """
 
 rule combine_contigs:
@@ -335,9 +338,9 @@ rule concatenate_R1_unassembled:
     Start with R1 reads
     """
     input:
-        expand(os.path.join(UNASSM, "{sample}.unassembled.R1.fastq"), sample=SAMPLES)
+        expand(os.path.join(UNASSM, "{sample}.unassembled.R1.fastq.gz"), sample=SAMPLES)
     output:
-        os.path.join(UNASSM, "R1.unassembled.fastq")
+        os.path.join(UNASSM, "R1.unassembled.fastq.gz")
     shell:
         "cat {input} > {output}"
 
@@ -346,9 +349,9 @@ rule concatenate_R2_unassembled:
     Concat R2 reads
     """
     input:
-        expand(os.path.join(UNASSM, "{sample}.unassembled.R2.fastq"), sample=SAMPLES)
+        expand(os.path.join(UNASSM, "{sample}.unassembled.R2.fastq.gz"), sample=SAMPLES)
     output:
-        os.path.join(UNASSM, "R2.unassembled.fastq")
+        os.path.join(UNASSM, "R2.unassembled.fastq.gz")
     shell:
         "cat {input} > {output}"
 
@@ -357,9 +360,9 @@ rule concatenate_single_unassembled:
     Concate singletons
     """
     input:
-        expand(os.path.join(UNASSM, "{sample}.unassembled.singles.fastq"),sample=SAMPLES)
+        expand(os.path.join(UNASSM, "{sample}.unassembled.singles.fastq.gz"),sample=SAMPLES)
     output:
-        os.path.join(UNASSM, "single.unassembled.fastq")
+        os.path.join(UNASSM, "single.unassembled.fastq.gz")
     shell:
         "cat {input} > {output}"
 
@@ -368,9 +371,9 @@ rule assemble_unassembled:
     assemble the unassembled reads
     """
     input:
-        r1 = os.path.join(UNASSM, "R1.unassembled.fastq"),
-        r2 = os.path.join(UNASSM, "R2.unassembled.fastq"),
-        s0 = os.path.join(UNASSM, "single.unassembled.fastq")
+        r1 = os.path.join(UNASSM, "R1.unassembled.fastq.gz"),
+        r2 = os.path.join(UNASSM, "R2.unassembled.fastq.gz"),
+        s0 = os.path.join(UNASSM, "single.unassembled.fastq.gz")
     output:
         os.path.join(REASSM, "final.contigs.fa"),
         os.path.join(REASSM, "log"),
@@ -385,11 +388,13 @@ rule assemble_unassembled:
     resources:
         mem_mb=128000,
         cpus=32,
-        time=7200
+        time=7200,
+        gpu=1,
+        partition="hpc_gpu"
     shell:
         """
         rmdir {params.odir};
-        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus}
+        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus}  --use-gpu -mem-flag 2
         """
 
 """
@@ -410,6 +415,8 @@ rule concatenate_all_assemblies:
     output:
         contigs = os.path.join(REASSM, "merged_contigs.fa"),
         ids = os.path.join(REASSM, "merged_contigs.ids") 
+    resources:
+        mem_mb=128000,
     params:
         sct = os.path.join(PMSDIR, "scripts/renumber_merge_fasta.py")
     shell:
@@ -433,6 +440,7 @@ rule merge_assemblies_with_flye:
         "envs/flye.yaml"
     resources:
         mem_mb=512000,
+        time=7200,
         cpus=32
     shell:
         """

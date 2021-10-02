@@ -16,6 +16,7 @@ import sys
 # we will skip the superfocus taxonomy if this is not defined
 taxonomy_database = None
 
+# This is the bit Mike hates, but hey, at least I provide an option for you to set the directory
 if "TAXONOMY_DB" in os.environ and os.path.exists(os.environ['TAXONOMY_DB']):
     taxonomy_database = os.environ['TAXONOMY_DB']
 elif os.path.exists("/home/edwa0468/ncbi/taxonomy/taxonomy.sqlite3"):
@@ -30,9 +31,6 @@ else:
     include: "skip_superfocus_taxonomy.snakefile"
 
 
-# this is left over from standalone code.
-# PSEQDIR="QC"
-# SAMPLES, = glob_wildcards(os.path.join(PSEQDIR, '{sample}_good_out_R1.fastq'))
 
 
 # just check there is something to actually do!
@@ -56,7 +54,7 @@ rule read_annotation_all:
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv"),
             ],
                sample=SAMPLES),
-        os.path.join(RBADIR, "all_taxonomy.tsv")
+        os.path.join(RBADIR, "superfocus_taxonomy.tsv.zip")
 
 
 
@@ -68,10 +66,10 @@ rule read_annotation_all:
 
 rule link_psq_good:
     input:
-        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz")
     output:
         d = directory(os.path.join(RBADIR, "{sample}", "prinseq_good")),
-        f = os.path.join(RBADIR, "{sample}", "prinseq_good", "{sample}.good_out_R1.fastq")
+        f = os.path.join(RBADIR, "{sample}", "prinseq_good", "{sample}.good_out_R1.fastq.gz")
     params:
         d = os.path.join(RBADIR, "{sample}", "prinseq_good")
     shell:
@@ -127,7 +125,7 @@ rule run_superfocus:
         "../envs/superfocus.yaml"
     shell:
         """
-        superfocus -b $HOME/superfocus_db/version2 -q {input} -dir {output.d} -a diamond -t {resources.cpus}
+        superfocus -b $HOME/superfocus_db/version2 -q {input} -dir {output.d} -a diamond -t {resources.cpus} -n 0
         """
 
 rule merge_sf_outputs:

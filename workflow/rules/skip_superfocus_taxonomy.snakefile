@@ -18,7 +18,7 @@ rule fake_superfocus_taxonomy:
     input:
         m8 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}.good_out_R1.fastq_alignments.m8"),
     output:
-        os.path.join(RBADIR, "all_taxonomy.tsv")
+        os.path.join(RBADIR, "superfocus_taxonomy.tsv.zip")
     params:
         text = temptext
     shell:
