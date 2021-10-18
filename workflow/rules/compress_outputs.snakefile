@@ -12,6 +12,16 @@
 
 
 rule compress_prinseq_output:
+    """
+    Note: we do this indirectly, with a stdout redirect because
+    elsewhere we set a link to this file, and gzip
+    breaks if there is >1 link to the file.
+
+    We have also set these files to be temporary, so once 
+    we have compressed them, they should be deleted!
+
+    Same thing as gzip, but in two steps
+    """
     input:
         os.path.join(PSEQDIR, "{sample}_good_out_R1.fastq"),
         os.path.join(PSEQDIR, "{sample}_good_out_R2.fastq"),
@@ -24,7 +34,7 @@ rule compress_prinseq_output:
         os.path.join(PSEQDIR, "{sample}_single_out_R2.fastq.gz")
     shell:
         """
-        for F in {input}; do gzip $F; done
+        for F in {input}; do gzip -c $F > $F.gz; done
         """
 
 
