@@ -18,7 +18,7 @@ rule metabat_contigs_depth:
     params:
         basename=os.path.join(METABAT, "metabat_bins")
     conda:
-        "envs/metabat2.yaml"
+        "../envs/metabat2.yaml"
     shell:
         """
         mkdir --parents {params.basename};
@@ -34,7 +34,7 @@ rule metabat_bins:
     params:
         base=os.path.join(METABAT, "metabat_bins/metabat_bins")
     conda:
-        "envs/metabat2.yaml"
+        "../envs/metabat2.yaml"
     resources:
         mem_mb=20000,
         cpus=16
@@ -53,7 +53,7 @@ rule concoct:
     params:
        od=os.path.join(CONCOCT, "concoct_output")
     conda:
-        "envs/concoct.yaml"
+        "../envs/concoct.yaml"
     resources:
         mem_mb=20000,
         cpus=16
@@ -71,7 +71,7 @@ rule extract_concoct_bins:
     params:
        base=os.path.join(CONCOCT, "concoct_bins")
     conda:
-        "envs/concoct.yaml"
+        "../envs/concoct.yaml"
     shell:
        """
        touch {output}

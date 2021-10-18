@@ -31,6 +31,10 @@ else:
     include: "skip_superfocus_taxonomy.snakefile"
 
 
+if 'SUPERFOCUS_DB' not in os.environ:
+    sys.stderr.write("FATAL: Please set the location of your superfocus databases using the SUPERFOCUS_DB environment variable\n")
+    sys.exit(1)
+
 
 
 # just check there is something to actually do!
@@ -66,10 +70,10 @@ rule read_annotation_all:
 
 rule link_psq_good:
     input:
-        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq")
     output:
         d = directory(os.path.join(RBADIR, "{sample}", "prinseq_good")),
-        f = os.path.join(RBADIR, "{sample}", "prinseq_good", "{sample}.good_out_R1.fastq.gz")
+        f = os.path.join(RBADIR, "{sample}", "prinseq_good", "{sample}.good_out_R1.fastq")
     params:
         d = os.path.join(RBADIR, "{sample}", "prinseq_good")
     shell:
@@ -104,8 +108,6 @@ rule run_focus:
         focus -q {input} -o {output.d} -t {resources.cpus}
         """
 
-# TODO
-# We should remove the -b once the SUPERFOCUS_DB environment variable works
 
 rule run_superfocus:
     input:
@@ -125,7 +127,7 @@ rule run_superfocus:
         "../envs/superfocus.yaml"
     shell:
         """
-        superfocus -b $HOME/superfocus_db/version2 -q {input} -dir {output.d} -a diamond -t {resources.cpus} -n 0
+        superfocus -q {input} -dir {output.d} -a diamond -t {resources.cpus} -n 0
         """
 
 rule merge_sf_outputs:

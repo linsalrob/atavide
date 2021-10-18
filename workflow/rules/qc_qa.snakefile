@@ -14,7 +14,7 @@ rule prinseq:
         s2 = os.path.join(PSEQDIR, "{sample}_single_out_R2.fastq"),
         b1 = temporary(os.path.join(PSEQDIR, "{sample}_bad_out_R1.fastq")),
         b2 = temporary(os.path.join(PSEQDIR, "{sample}_bad_out_R2.fastq"))
-    conda: "envs/prinseq.yaml"
+    conda: "../envs/prinseq.yaml"
     params:
         o = os.path.join(PSEQDIR, "{sample}")
     shell:

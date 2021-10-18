@@ -37,7 +37,7 @@ rule make_h5_table:
     resources:
         mem_mb=64000
     conda:
-        "envs/h5py.yaml"
+        "../envs/h5py.yaml"
     shell:
         """
          python3 ~/GitHubs/EdwardsLab/h5py/files_to_h5.py -f {input} -o {output} -s

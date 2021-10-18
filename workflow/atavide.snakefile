@@ -73,7 +73,7 @@ else:
 
 # A Snakemake regular expression matching the forward mate FASTQ files.
 # the comma after SAMPLES is important!
-SAMPLES,EXTENSIONS, = glob_wildcards(os.path.join(READDIR, '{sample}_R1.{extn}'))
+SAMPLES,EXTENSIONS, = glob_wildcards(os.path.join(READDIR, '{sample}_R1{extn}'))
 if len(SAMPLES) == 0:
     sys.stderr.write(f"We did not find any fastq files in {SAMPLES}. Is this the right read dir?\n")
     sys.exit(0)
@@ -84,8 +84,8 @@ if len(set(EXTENSIONS)) != 1:
     sys.exit(0)
 
 FQEXTN = EXTENSIONS[0]
-PATTERN_R1 = '{sample}_R1.' + FQEXTN
-PATTERN_R2 = '{sample}_R2.' + FQEXTN
+PATTERN_R1 = '{sample}_R1' + FQEXTN
+PATTERN_R2 = '{sample}_R2' + FQEXTN
 
 # read the rules for running different pieces and parts of the code
 include: "rules/qc_qa.snakefile"
@@ -94,6 +94,7 @@ include: "rules/round1_assembly.snakefile"
 include: "rules/compress_outputs.snakefile"
 include: "rules/round2_assembly.snakefile"
 include: "rules/statistics.snakefile"
+include: "rules/binning.snakefile"
 
 rule all:
     input:

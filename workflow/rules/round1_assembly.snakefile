@@ -29,7 +29,7 @@ rule megahit_assemble:
         gpu=1,
         partition="hpc_gpu"
     conda:
-        "envs/megahit.yaml"
+        "../envs/megahit.yaml"
     shell:
         """
         rmdir {params.odir} ; 
@@ -76,7 +76,7 @@ rule index_contigs:
         mem_mb=64000,
         cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
         # note that we build a large index by default, because
         # at some point we will end up doing that, and so this
@@ -110,7 +110,7 @@ rule map_reads:
         mem_mb=20000,
         cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
         """
         bowtie2 --mm -x {params.contigs} -1 {input.r1} -2 {input.r2} \
@@ -135,7 +135,7 @@ rule umapped_left_reads:
     output:
         os.path.join(UNASSM, "{sample}.unassembled.R1.fastq")
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     resources:
         mem_mb=32000,
         cpus=8
@@ -158,7 +158,7 @@ rule umapped_right_reads:
     output:
         os.path.join(UNASSM, "{sample}.unassembled.R2.fastq")
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     resources:
         mem_mb=32000,
         cpus=8
@@ -181,7 +181,7 @@ rule umapped_single_reads:
     output:
         os.path.join(UNASSM, "{sample}.unassembled.singles.fastq")
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     resources:
         mem_mb=32000,
         cpus=8

@@ -22,7 +22,7 @@ rule assemble_unassembled:
     params:
         odir = os.path.join(REASSM)
     conda:
-        "envs/megahit.yaml"
+        "../envs/megahit.yaml"
     resources:
         mem_mb=128000,
         cpus=32,
@@ -75,7 +75,7 @@ rule merge_assemblies_with_flye:
         os.path.join(CCMO, "assembly_info.txt"),
         os.path.join(CCMO, "flye.log"),
     conda:
-        "envs/flye.yaml"
+        "../envs/flye.yaml"
     resources:
         mem_mb=512000,
         time=7200,
@@ -104,7 +104,7 @@ rule index_final_contigs:
         mem_mb=64000,
         cpus=16
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
         # note that we build a large index by default, because
         # at some point we will end up doing that, and so this
@@ -138,7 +138,7 @@ rule map_reads_to_final:
         mem_mb=20000,
         cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
         """
         bowtie2 --mm -x {params.contigs} -1 {input.r1} -2 {input.r2} \
@@ -152,7 +152,7 @@ rule bai_final_bams:
     output:
         os.path.join(RMRD, "{sample}.final_contigs.bam.bai")
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
         "samtools index {input}"
 
@@ -165,7 +165,7 @@ rule count_mapped_reads:
     resources:
         cpus=8
     conda:
-        "envs/bowtie.yaml"
+        "../envs/bowtie.yaml"
     shell:
         """
         samtools idxstats -@ {resources.cpus} {input.bam} | cut -f 1,3 > {output}

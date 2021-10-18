@@ -12,4 +12,4 @@ directories :
         combined_contig_merging : "final.combined_contigs"
         read_based_annotations: "ReadAnnotations" 
         metabat : "metabat"
-        concoct : "6X3qEndV.concoct"
+        concoct : "concoct"
