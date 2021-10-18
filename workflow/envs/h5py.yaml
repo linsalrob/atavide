@@ -1,0 +1,6 @@
+name: h5py
+channels:
+    - conda-forge
+    - default
+dependencies:
+    - h5py

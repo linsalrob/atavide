@@ -141,8 +141,8 @@ rule merge_sf_outputs:
 
 rule run_kraken:
     input:
-        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
-        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq.gz")
     output:
         rt = os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv"),
         ot = os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv")
@@ -161,8 +161,8 @@ rule run_kraken:
 
 rule run_singlem:
     input:
-        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
-        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq.gz")
     output:
         d = directory(os.path.join(RBADIR, "{sample}", "singlem")),
         otu = os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv")
