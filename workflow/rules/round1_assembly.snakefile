@@ -7,7 +7,45 @@ the contigs. We then find unassembled reads and concatenate them
 
 
 
+rule megahit_assemble_gpu:
+    """
+    Note this is how to do the assembly using GPUs, but
+    according to megahit they don't really support this
+    so I bypass it and use CPUs
+    """
+    input:
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq.gz"),
+        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq.gz"),
+        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq.gz")
+    output:
+        os.path.join(ASSDIR, "{sample}_gpu/final.contigs.fa"),
+        os.path.join(ASSDIR, "{sample}_gpu/log"),
+        temporary(os.path.join(ASSDIR, "{sample}_gpu/checkpoints.txt")),
+        temporary(os.path.join(ASSDIR, "{sample}_gpu/done")),
+        temporary(directory(os.path.join(ASSDIR, "{sample}_gpu/intermediate_contigs"))),
+        temporary(os.path.join(ASSDIR, "{sample}_gpu/options.json"))
+    params:
+        odir = directory(os.path.join(ASSDIR, '{sample}_gpu'))
+    resources:
+        mem_mb=64000,
+        cpus=16,
+        time=7200,
+        gpu=1,
+        partition="hpc_gpu"
+    conda:
+        "../envs/megahit.yaml"
+    shell:
+        """
+        rmdir {params.odir} ; 
+        megahit -1 {input.r1} -2 {input.r2} -r {input.s1} -r {input.s2} \
+                -o {params.odir} -t {resources.cpus} --use-gpu -mem-flag 2
+        """
+
 rule megahit_assemble:
+    """
+    This version uses CPUs to do the assembly
+    """
     input:
         r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
         r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq.gz"),
@@ -24,17 +62,15 @@ rule megahit_assemble:
         odir = directory(os.path.join(ASSDIR, '{sample}'))
     resources:
         mem_mb=64000,
-        cpus=16,
+        cpus=32,
         time=7200,
-        gpu=1,
-        partition="hpc_gpu"
     conda:
         "../envs/megahit.yaml"
     shell:
         """
         rmdir {params.odir} ; 
         megahit -1 {input.r1} -2 {input.r2} -r {input.s1} -r {input.s2} \
-                -o {params.odir} -t {resources.cpus} --use-gpu -mem-flag 2
+                -o {params.odir} -t {resources.cpus} -mem-flag 2
         """
 
 rule combine_contigs:

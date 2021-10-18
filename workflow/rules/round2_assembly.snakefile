@@ -4,9 +4,43 @@ Here we take all the unassembled reads and reassemble them again
 """
 
 
+rule assemble_unassembled_gpu:
+    """
+    assemble the unassembled reads using the gpu.
+
+    See the note in round 1 assemblies. Basically, they don't really
+    support GPUs so we've switched back to CPU.
+    """
+    input:
+        r1 = os.path.join(UNASSM, "R1.unassembled.fastq.gz"),
+        r2 = os.path.join(UNASSM, "R2.unassembled.fastq.gz"),
+        s0 = os.path.join(UNASSM, "single.unassembled.fastq.gz")
+    output:
+        os.path.join(REASSM, "gpu", "final.contigs.fa"),
+        os.path.join(REASSM, "gpu", "log"),
+        temporary(os.path.join(REASSM, "gpu", "checkpoints.txt")),
+        temporary(os.path.join(REASSM, "gpu", "done")),
+        temporary(directory(os.path.join(REASSM, "gpu", "intermediate_contigs"))),
+        temporary(os.path.join(REASSM, "gpu", "options.json"))
+    params:
+        odir = os.path.join(REASSM, "gpu")
+    conda:
+        "../envs/megahit.yaml"
+    resources:
+        mem_mb=128000,
+        cpus=32,
+        time=7200,
+        gpu=1,
+        partition="hpc_gpu"
+    shell:
+        """
+        rmdir {params.odir};
+        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus}  --use-gpu -mem-flag 2
+        """
+
 rule assemble_unassembled:
     """
-    assemble the unassembled reads
+    assemble the unassembled reads using CPU (but more threads)
     """
     input:
         r1 = os.path.join(UNASSM, "R1.unassembled.fastq.gz"),
@@ -27,12 +61,10 @@ rule assemble_unassembled:
         mem_mb=128000,
         cpus=32,
         time=7200,
-        gpu=1,
-        partition="hpc_gpu"
     shell:
         """
         rmdir {params.odir};
-        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus}  --use-gpu -mem-flag 2
+        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus} -mem-flag 2
         """
 
 """
