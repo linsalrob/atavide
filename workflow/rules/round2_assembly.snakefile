@@ -35,7 +35,7 @@ rule assemble_unassembled_gpu:
     shell:
         """
         rmdir {params.odir};
-        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus}  --use-gpu -mem-flag 2
+        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus}  --use-gpu --mem-flag 2
         """
 
 rule assemble_unassembled:
@@ -64,7 +64,7 @@ rule assemble_unassembled:
     shell:
         """
         rmdir {params.odir};
-        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus} -mem-flag 2
+        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus} --mem-flag 2
         """
 
 """
