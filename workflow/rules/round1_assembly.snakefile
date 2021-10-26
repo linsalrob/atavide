@@ -39,7 +39,7 @@ rule megahit_assemble_gpu:
         """
         rmdir {params.odir} ; 
         megahit -1 {input.r1} -2 {input.r2} -r {input.s1} -r {input.s2} \
-                -o {params.odir} -t {resources.cpus} --use-gpu -mem-flag 2
+                -o {params.odir} -t {resources.cpus} --use-gpu --mem-flag 2
         """
 
 rule megahit_assemble:
@@ -70,7 +70,7 @@ rule megahit_assemble:
         """
         rmdir {params.odir} ; 
         megahit -1 {input.r1} -2 {input.r2} -r {input.s1} -r {input.s2} \
-                -o {params.odir} -t {resources.cpus} -mem-flag 2
+                -o {params.odir} -t {resources.cpus} --mem-flag 2
         """
 
 rule combine_contigs:
