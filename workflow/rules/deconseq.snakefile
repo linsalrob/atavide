@@ -145,13 +145,13 @@ rule compress_host_mapped_sequences:
         os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
         os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
     output:
-        os.path.join(INTERIMDIR, "{sample}_R1_mapped_to_host.fastq"),
-        os.path.join(INTERIMDIR, "{sample}_R2_mapped_to_host.fastq"),
-        os.path.join(INTERIMDIR, "{sample}_S_mapped_to_host.fastq"),
-        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
-        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
-        os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
-        os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
+        os.path.join(INTERIMDIR, "{sample}_R1_mapped_to_host.fastq.gz"),
+        os.path.join(INTERIMDIR, "{sample}_R2_mapped_to_host.fastq.gz"),
+        os.path.join(INTERIMDIR, "{sample}_S_mapped_to_host.fastq.gz"),
+        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
+        os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq.gz"),
+        os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq.gz"),
+        os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq.gz")
     shell:
         """
         for F in {input}; do gzip $F; done
