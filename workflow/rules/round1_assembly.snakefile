@@ -14,10 +14,10 @@ rule megahit_assemble_gpu:
     so I bypass it and use CPUs
     """
     input:
-        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
-        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq.gz"),
-        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq.gz"),
-        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq.gz")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
+        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
     output:
         os.path.join(ASSDIR, "{sample}_gpu/final.contigs.fa"),
         os.path.join(ASSDIR, "{sample}_gpu/log"),
@@ -47,10 +47,10 @@ rule megahit_assemble:
     This version uses CPUs to do the assembly
     """
     input:
-        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
-        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq.gz"),
-        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq.gz"),
-        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq.gz")
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+        s1 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R1.fastq"),
+        s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
     output:
         os.path.join(ASSDIR, "{sample}/final.contigs.fa"),
         os.path.join(ASSDIR, "{sample}/log"),
