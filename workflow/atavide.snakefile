@@ -35,6 +35,7 @@ STATS   = config['directories']['statistics']
 RBADIR  = config['directories']['read_based_annotations']
 METABAT = config['directories']['metabat']
 CONCOCT = config['directories']['concoct']
+TAXON   = config['directories']['ncbi_taxonomy']
 
 # what is the directory of atavide.snakefile.
 # We need to add that to the pythonpath and also
@@ -95,17 +96,19 @@ include: "rules/compress_outputs.snakefile"
 include: "rules/round2_assembly.snakefile"
 include: "rules/statistics.snakefile"
 include: "rules/binning.snakefile"
+include: "rules/kraken_taxonomy.snakefile"
 
 rule all:
     input:
         # these rules are from rules/read_annotations.snakefile
         expand(
             [
-                os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
+                os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
                 os.path.join(RBADIR, "{sample}", "focus", "output_All_levels.csv.zip"),
                 os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"), ## TODO note we can not use superfocus at the moment until the environmental variable stuff is incorporated
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv.zip"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv.zip"),
+                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"), 
                 os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv.zip"),
                 os.path.join(RMRD, "{sample}.final_contigs.bam.bai")
             ],
