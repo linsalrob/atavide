@@ -12,4 +12,5 @@ directories :
         combined_contig_merging : "final.combined_contigs"
         read_based_annotations: "ReadAnnotations" 
         metabat : "metabat"
+        ncbi_taxonomy: '/home/edwa0468/ncbi/taxonomy/current/'
         concoct : "concoct"
