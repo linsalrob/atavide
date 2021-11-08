@@ -9,51 +9,20 @@ rule superfocus_taxonomy:
     output:
         os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy")
     params:
-        db = "/home/edwa0468/ncbi/taxonomy/taxonomy.sqlite3"
+        t = TAXON
     resources:
         mem_mb=16000
+    conda:
+        "../envs/taxonkit.yaml"
     shell:
         """
-        python3 /home/edwa0468/GitHubs/atavide/workflow/scripts/superfocus_to_taxonomy.py -f {input} --tophit -d {params.db} > {output}
+        perl -F"\\t" -lane 'if ($F[1] =~ /fig\|(\d+)\.\d+/ && $1 != 6666666) \
+           {{print "$F[0]\\t$1"}}' {input.m8} | \
+        taxonkit lineage -j {resources.cpus} -i 2 --data-dir {params.t} | \
+        taxonkit reformat -j {resources.cpus} --data-dir {params.t} -i 3 \
+          -f "Root; d__{{k}}; p__{{p}}; c__{{c}}; o__{{o}}; f__{{f}}; g__{{g}}" \
+          --fill-miss-rank | \
+        cut -f 1,2,4 > {output}
         """
 
-rule count_sf_taxonomy:
-    input:
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy")
-    output:
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_tax_counts.tsv")
-    params:
-        s = "{sample}"
-    resources:
-        cpus=4,
-        mem_mb=16000
-    shell:
-        """
-        cut -d$'\t' -f 2- {input} | sed -e 's/\t/|/g' | \
-        awk -v F={params.s} 'BEGIN {{print "Superkingdom|Phylum|Class|Order|Family|Genus|Species|Taxid\t"F}} s[$0]++ {{}} END {{ for (i in s) print i"\t"s[i] }}' \
-        > {output}
-        """
-
-rule join_superfocus_taxonomy:
-    input:
-        expand(os.path.join(RBADIR, "{smps}", "superfocus", "{smps}_tax_counts.tsv"), smps=SAMPLES)
-    output:
-        os.path.join(RBADIR, "superfocus_taxonomy.tsv")
-    shell:
-        """
-        perl /home/edwa0468/GitHubs/atavide/workflow/scripts/joinlists.pl -h -z {input} > {output}
-        """
-
-
-rule compress_superfocus_taxonomy:
-    input:
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy"),
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_tax_counts.tsv")
-    output:
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy.zip"),
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_tax_counts.tsv.zip")
-    shell:
-        """
-        for F in {input}; do zip $F.zip $F; done
-        """
 

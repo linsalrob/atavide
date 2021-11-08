@@ -39,8 +39,8 @@ rule kraken_taxonomy:
     shell:
         """
         grep -v ^U {input} | \
-        taxonkit lineage -i 3 --data-dir {params.t} | \
-        taxonkit reformat --data-dir {params.t} -i 6 -f \
+        taxonkit lineage -j {resources.cpus} -i 3 --data-dir {params.t} | \
+        taxonkit reformat -j {resources.cpus} --data-dir {params.t} -i 6 -f \
         "Root; d__{{k}}; p__{{p}}; c__{{c}}; o__{{o}}; f__{{f}}; g__{{g}}" \
-        --fill-miss-rank | cut -f 2,3,7 taxonout2 > {output}
+        --fill-miss-rank | cut -f 2,3,7 > {output}
         """

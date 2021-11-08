@@ -9,7 +9,7 @@ rule final_assembly_stats:
     output:
         os.path.join(STATS, "final_assembly.txt")
     params:
-        sct = os.path.join(PMSDIR, "scripts/countfasta.py")
+        sct = os.path.join(ATAVIDE_DIR, "scripts/countfasta.py")
     shell:
         """
         python3 {params.sct} -f {input} > {output}
@@ -23,7 +23,7 @@ rule make_table:
     resources:
         mem_mb=64000
     params:
-        sct = os.path.join(PMSDIR, "scripts/joinlists.pl")
+        sct = os.path.join(ATAVIDE_DIR, "scripts/joinlists.pl")
     shell:
         """
         perl {params.sct} -t {input} > {output}
@@ -38,9 +38,11 @@ rule make_h5_table:
         mem_mb=64000
     conda:
         "../envs/h5py.yaml"
+    params:
+        sct = os.path.join(ATAVIDE_DIR, "scripts/files_to_h5.py")
     shell:
         """
-         python3 ~/GitHubs/EdwardsLab/h5py/files_to_h5.py -f {input} -o {output} -s
+         python3 {params.sct} -f {input} -o {output} -s
          """
 
 rule count_contig_lengths:
@@ -49,7 +51,7 @@ rule count_contig_lengths:
     output:
         os.path.join(STATS, "sequence_lengths.tsv")
     params:
-        sct = os.path.join(PMSDIR, "scripts/countfasta.py")
+        sct = os.path.join(ATAVIDE_DIR, "scripts/countfasta.py")
     shell:
         """
         python3 {params.sct} -f {input} -ln > {output}

@@ -79,10 +79,8 @@ rule compress_text_files:
 rule zip_sf_output:
     input:
         os.path.join(RBADIR, "superfocus_functions.tsv"),
-        os.path.join(RBADIR, "superfocus_taxonomy.tsv")
     output:
         os.path.join(RBADIR, "superfocus_functions.tsv.zip"),
-        os.path.join(RBADIR, "superfocus_taxonomy.tsv.zip")
     shell:
         """
         for F in {input}; do zip $F.zip $F; done

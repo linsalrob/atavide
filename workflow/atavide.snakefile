@@ -24,12 +24,6 @@ import socket
 
 
 READDIR = config['directories']['Reads']
-ASSDIR  = config['directories']['round1_assembly_output']
-CRMDIR  = config['directories']['round1_contig_read_mapping']
-UNASSM  = config['directories']['round2_unassembled_reads']
-REASSM  = config['directories']['round2_assembly_output']
-CCMO    = config['directories']['combined_contig_merging']
-RMRD    = config['directories']['reads_vs_final_assemblies']
 PSEQDIR = config['directories']['prinseq']
 STATS   = config['directories']['statistics']
 RBADIR  = config['directories']['read_based_annotations']
@@ -37,13 +31,22 @@ METABAT = config['directories']['metabat']
 CONCOCT = config['directories']['concoct']
 TAXON   = config['directories']['ncbi_taxonomy']
 
+
+# atavide binning
+ASSDIR  = os.path.join(config['directories']['atavide_binning'], "assembly.1")
+CRMDIR  = os.path.join(config['directories']['atavide_binning'], "reads.contigs.1")
+UNASSM  = os.path.join(config['directories']['atavide_binning'], "unassembled_reads")
+REASSM  = os.path.join(config['directories']['atavide_binning'], "reassembled_reads")
+CCMO    = os.path.join(config['directories']['atavide_binning'], "final.combined_contigs")
+RMRD    = os.path.join(config['directories']['atavide_binning'], "reads_vs_final_assemblies")
+
 # what is the directory of atavide.snakefile.
 # We need to add that to the pythonpath and also
 # use it for scripts
 
-PMSDIR = workflow.basedir
+ATAVIDE_DIR = workflow.basedir
 # append to pythonpath
-sys.path.append(PMSDIR)
+sys.path.append(ATAVIDE_DIR)
 
 # do we want to do host removal?
 
@@ -97,6 +100,8 @@ include: "rules/round2_assembly.snakefile"
 include: "rules/statistics.snakefile"
 include: "rules/binning.snakefile"
 include: "rules/kraken_taxonomy.snakefile"
+include: "rules/singlem.snakefile"
+include: "rules/combine_read_annotations.snakefile"
 
 rule all:
     input:
@@ -105,16 +110,17 @@ rule all:
             [
                 os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
                 os.path.join(RBADIR, "{sample}", "focus", "output_All_levels.csv.zip"),
-                os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"), ## TODO note we can not use superfocus at the moment until the environmental variable stuff is incorporated
+                os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"),
+                os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv.zip"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv.zip"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"), 
                 os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv.zip"),
-                os.path.join(RMRD, "{sample}.final_contigs.bam.bai")
+                os.path.join(RMRD, "{sample}.final_contigs.bam.bai"),
+                os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv")
             ],
                sample=SAMPLES),
         os.path.join(RBADIR, "superfocus_functions.tsv.zip"),
-        os.path.join(RBADIR, "superfocus_taxonomy.tsv.zip"),
         os.path.join(REASSM, "merged_contigs.fa"),
         os.path.join(CCMO, "flye.log"),
         os.path.join(STATS, "final_assembly.txt.zip"),

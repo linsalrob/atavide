@@ -88,7 +88,7 @@ rule concatenate_all_assemblies:
     resources:
         mem_mb=128000,
     params:
-        sct = os.path.join(PMSDIR, "scripts/renumber_merge_fasta.py")
+        sct = os.path.join(ATAVIDE_DIR, "scripts/renumber_merge_fasta.py")
     shell:
         """
         python3 {params.sct} -f {input} -o {output.contigs} -i {output.ids} -v

@@ -86,7 +86,7 @@ rule combine_contigs:
         contigs = os.path.join(ASSDIR, "round1_contigs.fa"),
         ids = os.path.join(ASSDIR, "round1_contigs.ids")
     params:
-        sct = os.path.join(PMSDIR, "scripts/renumber_merge_fasta.py")
+        sct = os.path.join(ATAVIDE_DIR, "scripts/renumber_merge_fasta.py")
     shell:
         """
         python3 {params.sct} -f {input} -o {output.contigs} -i {output.ids} -v
@@ -222,7 +222,7 @@ rule umapped_single_reads:
         mem_mb=32000,
         cpus=8
     shell:
-            "samtools fastq -@ {resources.cpus} -f 4 -F 1 {input} > {output}"
+        "samtools fastq -@ {resources.cpus} -f 4 -F 1 {input} > {output}"
 
 """
 We concatanate the unassembled reads into separate R1/R2/s files so
@@ -234,7 +234,7 @@ and to make the command easier
 
 rule concatenate_R1_unassembled:
     """
-    Start with R1 reads
+    Concat R1 reads
     """
     input:
         expand(os.path.join(UNASSM, "{sample}.unassembled.R1.fastq.gz"), sample=SAMPLES)
