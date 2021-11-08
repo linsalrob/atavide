@@ -5,7 +5,7 @@ rule merge_read_annotations:
         bam = os.path.join(RMRD, "{sample}.final_contigs.bam"),
         bai = os.path.join(RMRD, "{sample}.final_contigs.bam.bai"),
         singlem = os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv"),
-        kraken = os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv")
+        kraken = os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"),
         superfocus = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy")
     output:
         os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv"),
