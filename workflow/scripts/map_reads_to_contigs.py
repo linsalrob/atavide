@@ -18,6 +18,29 @@ import pysam
 __author__ = 'Rob Edwards'
 
 
+def read_superfocus(superfocusf, verbose=False):
+    """
+    Parse the superfocus output file.
+    :param str superfocusf: the superfocus output file
+    :param bool verbose:
+    :return dict: the superfocus reads and counts
+    """
+
+    if args.verbose:
+        sys.stderr.write(f"Parsing superfocus file {superfocusf}\n")
+
+    superfocus = {}
+    with open(superfocusf, 'r') as f:
+        for l in f:
+            p = l.strip().split("\t")
+            if p[0].endswith('/1') or p[0].endswith('/2'):
+                p[0] = p[0][:-2]
+            if p[0] in superfocus:
+                continue
+            superfocus[p[0]] = p[2]
+    return superfocus
+
+
 def read_kraken(krakenf, verbose=False):
     """
     Parse the kraken output file.
@@ -167,6 +190,7 @@ if __name__ == "__main__":
                         help='basename for output. We add .allmatches.tsv and .besthits.tsv to this name')
     parser.add_argument('-s', '--singlem', required=True,
                         help='singlem output file that requires reads in column 5 (ie. you need the --output_extras flag')
+    parser.add_argument('-f', '--superfocus', help='superfocus output file. The output from superfocus taxonomy')
     parser.add_argument('-k', '--kraken', help='kraken output file. The output from --output flag of kraken')
     parser.add_argument('-t', '--threshold', default=0.75, type=float,
                         help='Threshold to decide this is the unique classification for the contig. Default [Default: %(default)d]')
@@ -176,6 +200,8 @@ if __name__ == "__main__":
     data = {}
     if args.singlem:
         data['singlem'] = read_singlem(args.singlem, args.verbose)
+    if args.superfocus:
+        data['superfocus'] = read_superfocus(args.superfocus, args.verbose)
     if args.kraken:
         data['kraken'] = read_kraken(args.kraken, args.verbose)
     if not data:
