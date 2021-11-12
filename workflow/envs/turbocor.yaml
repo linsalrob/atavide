@@ -1,0 +1,5 @@
+name: turbocor
+channels:
+    - bioconda
+dependencies:
+    - turbocor
