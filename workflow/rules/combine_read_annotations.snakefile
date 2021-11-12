@@ -15,6 +15,8 @@ rule merge_read_annotations:
         os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.singlem.besthits.tsv")
     conda:
         "../envs/pysam.yaml"
+    resources:
+        mem_mb=8000
     params:
         out = os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy"),
         sct = os.path.join(ATAVIDE_DIR, "scripts/map_reads_to_contigs.py")

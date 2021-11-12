@@ -102,6 +102,7 @@ include: "rules/binning.snakefile"
 include: "rules/kraken_taxonomy.snakefile"
 include: "rules/singlem.snakefile"
 include: "rules/combine_read_annotations.snakefile"
+include: "rules/atavide_clusters.snakefile"
 
 rule all:
     input:
@@ -129,6 +130,6 @@ rule all:
         os.path.join(METABAT, "metabat_depth"),
         os.path.join(METABAT, "metabat_bins/metabat_bins.1.fa"),
         os.path.join(CONCOCT, "concoct_output/clustering_gt1000.csv"),
-        os.path.join(CONCOCT, "concoct_bins/1.fa")
-
+        os.path.join(CONCOCT, "concoct_bins/1.fa"),
+        os.path.join(STATS, "atavide_clusters.json")
 

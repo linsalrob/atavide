@@ -37,7 +37,8 @@ def read_superfocus(superfocusf, verbose=False):
                 p[0] = p[0][:-2]
             if p[0] in superfocus:
                 continue
-            superfocus[p[0]] = p[2]
+            if len(p) >= 3:
+                superfocus[p[0]] = p[2]
     return superfocus
 
 
@@ -63,7 +64,8 @@ def read_kraken(krakenf, verbose=False):
                 p[0] = p[0][:-2]
             if p[0] in kraken:
                 continue
-            kraken[p[0]] = p[2]
+            if len(p) >= 3:
+                kraken[p[0]] = p[2]
     return kraken
 
 def read_singlem(singlemf, verbose=False):

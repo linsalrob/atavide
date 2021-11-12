@@ -29,22 +29,6 @@ rule make_table:
         perl {params.sct} -t {input} > {output}
         """
 
-rule make_h5_table:
-    input:
-        expand(os.path.join(RMRD, "{smpl}_contig_hits.tsv"), smpl=SAMPLES)
-    output:
-        os.path.join(STATS, "sample_coverage.h5")
-    resources:
-        mem_mb=64000
-    conda:
-        "../envs/h5py.yaml"
-    params:
-        sct = os.path.join(ATAVIDE_DIR, "scripts/files_to_h5.py")
-    shell:
-        """
-         python3 {params.sct} -f {input} -o {output} -s
-         """
-
 rule count_contig_lengths:
     input:
         os.path.join(CCMO, "assembly.fasta")
