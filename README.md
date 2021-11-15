@@ -19,24 +19,35 @@ But you will need a [slurm profile](https://fame.flinders.edu.au/blog/2021/08/02
 
 # Installation and getting going
 
-Atavide is mostly self-installing. We rely on conda for most of what we do. However, if you wish to run super-focus, please [download the appropriate super-focus database](https://github.com/metageni/SUPER-FOCUS/issues/66) [hint: probably version 2]
-and set the `SUPERFOCUS_DB` directory to [point to the location of those files](https://github.com/metageni/SUPER-FOCUS#database).
 
-Kraken2, singlem, and focus have their own datasets downloaded on install time.
+1. Clone this repository from GitHub: `git clone https://github.com/linsalrob/atavide.git`
+2. Set the location of the repository: `export ATAVIDE_DIR=$PWD/atavide/`
+2. Install the [appropriate super-focus database](https://github.com/metageni/SUPER-FOCUS/issues/66) [hint: probably version 2] and set the `SUPERFOCUS_DB` directory to [point to the location of those files](https://github.com/metageni/SUPER-FOCUS#database).
+3. Have a directory of fastq files with both `_R1_` and `_R2_` files in a data directory: `$DATA_DIR/fastq` 
+4. Run atavide: `cd $DATA_DIR && snakemake --configfile $ATAVIDE_DIR/atavide.yaml -s $ATAVIDE_DIR/workflow/atavide.snakefile --profile slurm`
 
-To get atavide, clone it from git:
 
-```
-git clone git@github.com:linsalrob/atavide.git
-ATAVIDE_DIR=$PWD/atavide/
-```
+# Current processing steps:
 
-Then, if your data is in a directory, `$DATA_DIR` with some fastq files in a directory `$DATA_DIR/fastq` you can use:
 
-```
-cd $DATA_DIR
-snakemake --configfile $ATAVIDE_DIR/atavide.yaml -s $ATAVIDE_DIR/workflow/atavide.snakefile --profile slurm
-```
+1. Assemble each pair of reads (`_R1_` and `_R2_` separately)
+2. Merge those contigs
+3. Map all reads to those contigs and identify unassembled reads
+4. Assemble all of the unassembled reads
+5. Merge the contigs from the unassembled reads with the initial contigs to get a final assembly
+6. Map all the reads back to the final assembly
+7. Run pairwise correlations between the number of reads mapped to each contig to identify similar contigs
+8. Generate atavide bins from the pairwise mapping.
+9. Generate concoct bins from the final contigs and mapped reads
+10. Generate metabat bins from the final contigs and mapped reads
+11. Run read-based annotations:
+    - focus
+    - super-focus
+    - kraken
+    - singlem
+12. Combine all the read based annotations with the contig-read mappings to get contig level annotations
+
+
 
 
 
