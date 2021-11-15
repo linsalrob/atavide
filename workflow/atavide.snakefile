@@ -30,7 +30,7 @@ RBADIR  = config['directories']['read_based_annotations']
 METABAT = config['directories']['metabat']
 CONCOCT = config['directories']['concoct']
 TAXON   = config['directories']['ncbi_taxonomy']
-
+ATAVIDE_BINNING = config['directories']['atavide_binning']
 
 # atavide binning
 ASSDIR  = os.path.join(config['directories']['atavide_binning'], "assembly.1")
@@ -126,10 +126,12 @@ rule all:
         os.path.join(CCMO, "flye.log"),
         os.path.join(STATS, "final_assembly.txt.zip"),
         os.path.join(STATS, "sample_coverage.tsv.zip"),
-        os.path.join(STATS, "sample_coverage.h5"),
         os.path.join(METABAT, "metabat_depth"),
         os.path.join(METABAT, "metabat_bins/metabat_bins.1.fa"),
         os.path.join(CONCOCT, "concoct_output/clustering_gt1000.csv"),
         os.path.join(CONCOCT, "concoct_bins/1.fa"),
-        os.path.join(STATS, "atavide_clusters.json")
+        os.path.join(ATAVIDE_BINNING, "stats", "sample_coverage.h5"),
+        os.path.join(ATAVIDE_BINNING, "stats", "atavide_clusters.json"),
+        os.path.join(ATAVIDE_BINNING, "bins"),
+
 
