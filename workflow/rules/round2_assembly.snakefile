@@ -31,7 +31,7 @@ rule assemble_unassembled_gpu:
         cpus=32,
         time=7200,
         gpu=1,
-        partition="hpc_gpu"
+        partition="gpu"
     shell:
         """
         rmdir {params.odir};

@@ -32,7 +32,7 @@ rule megahit_assemble_gpu:
         cpus=16,
         time=7200,
         gpu=1,
-        partition="hpc_gpu"
+        partition="gpu"
     conda:
         "../envs/megahit.yaml"
     shell:
