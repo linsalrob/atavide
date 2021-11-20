@@ -35,13 +35,13 @@ rule metabat_bins:
         base=os.path.join(METABAT, "metabat_bins/metabat_bins")
     conda:
         "../envs/metabat2.yaml"
+    threads: 16
     resources:
         mem_mb=20000,
-        cpus=16
     shell:
         """
         touch {output}
-        metabat2 -i {input.contigs} -a {input.depth} -m 1500 -o {params.base} -t {resources.cpus}
+        metabat2 -i {input.contigs} -a {input.depth} -m 1500 -o {params.base} -t {threads}
         """
 
 rule concoct:
@@ -54,12 +54,12 @@ rule concoct:
        od=os.path.join(CONCOCT, "concoct_output")
     conda:
         "../envs/concoct.yaml"
+    threads: 16
     resources:
         mem_mb=20000,
-        cpus=16
     shell:
        """
-       concoct --composition_file {input.contigs} --coverage_file {input.tsv} -b {params.od} -t {resources.cpus}
+       concoct --composition_file {input.contigs} --coverage_file {input.tsv} -b {params.od} -t {threads}
        """
 
 rule extract_concoct_bins:

@@ -8,13 +8,13 @@ rule run_singlem:
         otu = os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv")
     conda:
         "../envs/singlem.yaml"
+    threads: 8
     resources:
-        cpus=8,
         mem_mb=40000
     shell:
         """
         mkdir --parents {output.d};
-        singlem pipe --forward {input.r1} --reverse {input.r2} --otu_table {output.otu} --output_extras --threads {resources.cpus}
+        singlem pipe --forward {input.r1} --reverse {input.r2} --otu_table {output.otu} --output_extras --threads {threads}
         """
 
 

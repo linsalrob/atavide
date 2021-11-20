@@ -27,9 +27,9 @@ rule megahit_assemble_gpu:
         temporary(os.path.join(ASSDIR, "{sample}_gpu/options.json"))
     params:
         odir = directory(os.path.join(ASSDIR, '{sample}_gpu'))
+    threads: 16
     resources:
         mem_mb=64000,
-        cpus=16,
         time=7200,
         gpu=1,
         partition="gpu"
@@ -39,7 +39,7 @@ rule megahit_assemble_gpu:
         """
         rmdir {params.odir} ; 
         megahit -1 {input.r1} -2 {input.r2} -r {input.s1} -r {input.s2} \
-                -o {params.odir} -t {resources.cpus} --use-gpu --mem-flag 2
+                -o {params.odir} -t {threads} --use-gpu --mem-flag 2
         """
 
 rule megahit_assemble:
@@ -60,9 +60,9 @@ rule megahit_assemble:
         temporary(os.path.join(ASSDIR, "{sample}/options.json"))
     params:
         odir = directory(os.path.join(ASSDIR, '{sample}'))
+    threads: 32
     resources:
         mem_mb=64000,
-        cpus=32,
         time=7200,
     conda:
         "../envs/megahit.yaml"
@@ -70,7 +70,7 @@ rule megahit_assemble:
         """
         rmdir {params.odir} ; 
         megahit -1 {input.r1} -2 {input.r2} -r {input.s1} -r {input.s2} \
-                -o {params.odir} -t {resources.cpus} --mem-flag 2
+                -o {params.odir} -t {threads} --mem-flag 2
         """
 
 rule combine_contigs:
@@ -108,9 +108,9 @@ rule index_contigs:
         idx4 = temporary(os.path.join(CRMDIR, "round1_contigs.4.bt2l")),
         ridx1 = temporary(os.path.join(CRMDIR, "round1_contigs.rev.1.bt2l")),
         ridx2 = temporary(os.path.join(CRMDIR, "round1_contigs.rev.2.bt2l"))
+    threads: 8
     resources:
         mem_mb=64000,
-        cpus=8
     conda:
         "../envs/bowtie.yaml"
     shell:
@@ -119,7 +119,7 @@ rule index_contigs:
         # always makes a large index
         """
         mkdir -p {CRMDIR} && \
-        bowtie2-build --threads {resources.cpus} --large-index {input} {params.baseoutput}
+        bowtie2-build --threads {threads} --large-index {input} {params.baseoutput}
         """
         
 
@@ -142,15 +142,15 @@ rule map_reads:
         contigs = os.path.join(CRMDIR, "round1_contigs")
     output:
         os.path.join(CRMDIR, "{sample}.contigs.bam")
+    threads: 8
     resources:
         mem_mb=20000,
-        cpus=8
     conda:
         "../envs/bowtie.yaml"
     shell:
         """
         bowtie2 --mm -x {params.contigs} -1 {input.r1} -2 {input.r2} \
-        -U {input.s1} -U {input.s2} --threads {resources.cpus} | \
+        -U {input.s1} -U {input.s2} --threads {threads} | \
         samtools view -bh | samtools sort -o {output} -
         """
 
@@ -172,17 +172,17 @@ rule umapped_left_reads:
         os.path.join(UNASSM, "{sample}.unassembled.R1.fastq")
     conda:
         "../envs/bowtie.yaml"
+    threads: 8
     resources:
         mem_mb=32000,
-        cpus=8
     shell:
         """
-        samtools view -@ {resources.cpus} -h {input} | 
+        samtools view -@ {threads} -h {input} | 
                 awk 'BEGIN {{FS="\t"; OFS="\t"}} 
                 {{if (/^@/ && substr($2, 3, 1)==":") {{print}} 
                 else if (and($2, 0x1) && and($2, 0x40) && 
                 (and($2, 0x4) || and($2, 0x8))) {{print}}}}' \
-                | samtools bam2fq -@ {resources.cpus} > {output}
+                | samtools bam2fq -@ {threads} > {output}
         """
 
 rule umapped_right_reads:
@@ -195,17 +195,17 @@ rule umapped_right_reads:
         os.path.join(UNASSM, "{sample}.unassembled.R2.fastq")
     conda:
         "../envs/bowtie.yaml"
+    threads: 8
     resources:
         mem_mb=32000,
-        cpus=8
     shell:
         """
-        samtools view -@ {resources.cpus} -h {input} | 
+        samtools view -@ {threads} -h {input} | 
                 awk 'BEGIN {{FS="\t"; OFS="\t"}} 
                 {{if (/^@/ && substr($2, 3, 1)==":") {{print}} 
                 else if (and($2, 0x1) && and($2, 0x80) && 
                 (and($2, 0x4) || and($2, 0x8))) {{print}}}}' \
-                | samtools bam2fq -@ {resources.cpus} > {output}
+                | samtools bam2fq -@ {threads} > {output}
         """
 
 rule umapped_single_reads:
@@ -218,11 +218,11 @@ rule umapped_single_reads:
         os.path.join(UNASSM, "{sample}.unassembled.singles.fastq")
     conda:
         "../envs/bowtie.yaml"
+    threads: 8
     resources:
         mem_mb=32000,
-        cpus=8
     shell:
-        "samtools fastq -@ {resources.cpus} -f 4 -F 1 {input} > {output}"
+        "samtools fastq -@ {threads} -f 4 -F 1 {input} > {output}"
 
 """
 We concatanate the unassembled reads into separate R1/R2/s files so

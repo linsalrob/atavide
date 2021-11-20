@@ -26,16 +26,16 @@ rule assemble_unassembled_gpu:
         odir = os.path.join(REASSM, "gpu")
     conda:
         "../envs/megahit.yaml"
+    threads: 32
     resources:
         mem_mb=128000,
-        cpus=32,
         time=7200,
         gpu=1,
         partition="gpu"
     shell:
         """
         rmdir {params.odir};
-        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus}  --use-gpu --mem-flag 2
+        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {threads}  --use-gpu --mem-flag 2
         """
 
 rule assemble_unassembled:
@@ -57,14 +57,14 @@ rule assemble_unassembled:
         odir = os.path.join(REASSM)
     conda:
         "../envs/megahit.yaml"
+    threads: 32
     resources:
         mem_mb=128000,
-        cpus=32,
         time=7200,
     shell:
         """
         rmdir {params.odir};
-        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {resources.cpus} --mem-flag 2
+        megahit -1 {input.r1} -2 {input.r2} -r {input.s0} -o {params.odir} -t {threads} --mem-flag 2
         """
 
 """
@@ -108,13 +108,13 @@ rule merge_assemblies_with_flye:
         os.path.join(CCMO, "flye.log"),
     conda:
         "../envs/flye.yaml"
+    threads: 32
     resources:
         mem_mb=512000,
         time=7200,
-        cpus=32
     shell:
         """
-        flye --meta --subassemblies {input.contigs} -o {CCMO} --threads {resources.cpus}
+        flye --meta --subassemblies {input.contigs} -o {CCMO} --threads {threads}
         """
 
 rule index_final_contigs:
@@ -132,9 +132,9 @@ rule index_final_contigs:
         idx4 = temporary( os.path.join(RMRD, "final_contigs" + ".4.bt2l")),
         rid1 = temporary( os.path.join(RMRD, "final_contigs" + ".rev.1.bt2l")),
         rid2 = temporary( os.path.join(RMRD, "final_contigs" + ".rev.2.bt2l"))
+    threads: 16
     resources:
         mem_mb=64000,
-        cpus=16
     conda:
         "../envs/bowtie.yaml"
     shell:
@@ -143,7 +143,7 @@ rule index_final_contigs:
         # always makes a large index
         """
         mkdir -p {RMRD} && \
-        bowtie2-build --threads {resources.cpus} --large-index {input} {params.baseoutput}
+        bowtie2-build --threads {threads} --large-index {input} {params.baseoutput}
         """
         
 
@@ -166,15 +166,15 @@ rule map_reads_to_final:
         contigs = os.path.join(RMRD, "final_contigs")
     output:
         os.path.join(RMRD, "{sample}.final_contigs.bam")
+    threads: 8
     resources:
         mem_mb=20000,
-        cpus=8
     conda:
         "../envs/bowtie.yaml"
     shell:
         """
         bowtie2 --mm -x {params.contigs} -1 {input.r1} -2 {input.r2} \
-        -U {input.s1} -U {input.s2} --threads {resources.cpus} | \
+        -U {input.s1} -U {input.s2} --threads {threads} | \
         samtools view -bh | samtools sort -o {output} -
         """
 
@@ -194,13 +194,14 @@ rule count_mapped_reads:
         bai = os.path.join(RMRD, "{sample}.final_contigs.bam.bai")
     output:
         os.path.join(RMRD, "{sample}_contig_hits.tsv")
+    threads: 8
     resources:
-        cpus=8
+        mem_mb=8000,
     conda:
         "../envs/bowtie.yaml"
     shell:
         """
-        samtools idxstats -@ {resources.cpus} {input.bam} | cut -f 1,3 > {output}
+        samtools idxstats -@ {threads} {input.bam} | cut -f 1,3 > {output}
         """
 
 

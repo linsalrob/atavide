@@ -44,13 +44,13 @@ rule btmap:
         idx = host_bt_index
     conda:
         "../envs/bowtie.yaml"
+    threads: 16
     resources:
         mem_mb=64000,
-        cpus=16
     shell:
         """
-		bowtie2 --mm -p {resources.cpus} -x {params.idx} -1 {input.r1} -2 {input.r2} \
-         | samtools view -@ {resources.cpus} -bh | samtools sort -o {output} -
+		bowtie2 --mm -p {threads} -x {params.idx} -1 {input.r1} -2 {input.r2} \
+         | samtools view -@ {threads} -bh | samtools sort -o {output} -
         """
 
 rule R1_reads_map_to_ref:
@@ -58,65 +58,65 @@ rule R1_reads_map_to_ref:
         os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
         os.path.join(INTERIMDIR, "{sample}_R1_mapped_to_host.fastq")
+    threads: 8
     resources:
         mem_mb=16000,
-        cpus=8
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "samtools fastq -@ {resources.cpus} -G 12 -f 65 {input} > {output}"
+        "samtools fastq -@ {threads} -G 12 -f 65 {input} > {output}"
 
 rule R2_reads_map_to_ref:
     input:
         os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
         os.path.join(INTERIMDIR, "{sample}_R2_mapped_to_host.fastq")
+    threads: 8
     resources:
         mem_mb=16000,
-        cpus=8
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "samtools fastq -@ {resources.cpus} -G 12 -f 129 {input} > {output}"
+        "samtools fastq -@ {threads} -G 12 -f 129 {input} > {output}"
 
 rule single_reads_map_to_ref:
     input:
         os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
         os.path.join(INTERIMDIR, "{sample}_S_mapped_to_host.fastq")
+    threads: 8
     resources:
         mem_mb=16000,
-        cpus=8
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "samtools fastq -@ {resources.cpus} -F 5 {input} > {output}"
+        "samtools fastq -@ {threads} -F 5 {input} > {output}"
         
 rule R1_unmapped:
     input:
         os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
         os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+    threads: 8
     resources:
         mem_mb=16000,
-        cpus=8
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "samtools fastq -@ {resources.cpus} -f 77  {input} > {output}"
+        "samtools fastq -@ {threads} -f 77  {input} > {output}"
 
 rule R2_unmapped:
     input:
         os.path.join(INTERIMDIR, '{sample}.hostmapped.bam')
     output:
         os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq"),
+    threads: 8
     resources:
         mem_mb=16000,
-        cpus=8
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "samtools fastq -@ {resources.cpus} -f 141 {input} > {output}"
+        "samtools fastq -@ {threads} -f 141 {input} > {output}"
 
 rule single_reads_unmapped:
     input:
@@ -126,12 +126,12 @@ rule single_reads_unmapped:
         s2 = os.path.join(PSEQDIR_TWO, "{sample}_single_out_R2.fastq")
     conda:
         "../envs/bowtie.yaml"
+    threads: 8
     resources:
         mem_mb=16000,
-        cpus=8
     shell:
         """
-        samtools fastq -@ {resources.cpus} -f 4 -F 1  {input} > {output.s1} &&
+        samtools fastq -@ {threads} -f 4 -F 1  {input} > {output.s1} &&
         touch {output.s2}
         """
 

@@ -81,14 +81,14 @@ rule run_focus:
         g = temporary(os.path.join(RBADIR, "{sample}", "focus", "output_Genus_tabular.csv")),
         o = temporary(os.path.join(RBADIR, "{sample}", "focus", "output_Order_tabular.csv")),
         sp = temporary(os.path.join(RBADIR, "{sample}", "focus", "output_Species_tabular.csv"))
+    threads: 8
     resources:
-        cpus=8,
         mem_mb=16000
     conda:
         "../envs/focus.yaml"
     shell:
         """
-        focus -q {input} -o {output.d} -t {resources.cpus}
+        focus -q {input} -o {output.d} -t {threads}
         """
 
 
@@ -102,15 +102,15 @@ rule run_superfocus:
         l1 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_1.xls")),
         l2 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_2.xls")),
         l3 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_3.xls")),
+    threads: 16
     resources:
-        cpus=16,
         mem_mb=32000,
         time=7200
     conda:
         "../envs/superfocus.yaml"
     shell:
         """
-        superfocus -q {input} -dir {output.d} -a diamond -t {resources.cpus} -n 0
+        superfocus -q {input} -dir {output.d} -a diamond -t {threads} -n 0
         """
 
 rule merge_sf_outputs:
