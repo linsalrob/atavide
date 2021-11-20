@@ -74,6 +74,7 @@ if 'host_dbpath' in config['directories'] and config['directories']['host_dbpath
 else:
     PSEQDIR_TWO = PSEQDIR
 
+os.makedirs(PSEQDIR_TWO, exist_ok=True)
 
 # A Snakemake regular expression matching the forward mate FASTQ files.
 # the comma after SAMPLES is important!
