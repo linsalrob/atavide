@@ -15,11 +15,6 @@ import sys
 include: "superfocus_taxonomy.snakefile"
 
 
-if 'SUPERFOCUS_DB' not in os.environ:
-    sys.stderr.write("FATAL: Please set the location of your superfocus databases using the SUPERFOCUS_DB environment variable\n")
-    sys.exit(1)
-
-
 
 # just check there is something to actually do!
 if len(SAMPLES) == 0:
