@@ -29,7 +29,6 @@ STATS   = config['directories']['statistics']
 RBADIR  = config['directories']['read_based_annotations']
 METABAT = config['directories']['metabat']
 CONCOCT = config['directories']['concoct']
-TAXON   = config['directories']['ncbi_taxonomy']
 ATAVIDE_BINNING = config['directories']['atavide_binning']
 
 # atavide binning
@@ -47,6 +46,30 @@ RMRD    = os.path.join(config['directories']['atavide_binning'], "reads_vs_final
 ATAVIDE_DIR = workflow.basedir
 # append to pythonpath
 sys.path.append(ATAVIDE_DIR)
+
+# Where is the taxonomy data
+TAXON = None
+if 'ncbi_taxonomy' in config['directories']:
+    TAXON = config['directories']['ncbi_taxonomy']
+elif 'NCBI_TAXONOMY' in os.environ:
+    TAXON = os.environ['NCBI_TAXONOMY']
+else:
+    sys.stderr.write("FATAL: Please set the location of your NCBI taxonomy data using the NCBI_TAXONOMY environment variable\n")
+    sys.exit(1)
+
+
+# Where is the superfocus database?
+SFDB = None
+if 'superfocus_db' in config['directories']:
+    SFDB = config['directories']['superfocus_db']
+    os.environ['SUPERFOCUS_DB'] = SFDB
+elif 'SUPERFOCUS_DB' in os.environ:
+    SFDB = os.environ['SUPERFOCUS_DB']
+else:
+    sys.stderr.write("FATAL: Please set the location of your superfocus databases using the SUPERFOCUS_DB environment variable\n")
+    sys.exit(1)
+
+
 
 # do we want to do host removal?
 
