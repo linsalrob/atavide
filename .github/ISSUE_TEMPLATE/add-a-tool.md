@@ -15,3 +15,4 @@ The tool is found at [ ](https://)
 
 **Please add a link to the tools conda/bioconda page**
 We are trying only to use conda tools in atavide to make it portable and compatible!
+You can find the tool at [ ](https://bioconda.github.io/recipes/)
