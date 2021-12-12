@@ -127,6 +127,7 @@ include: "rules/kraken_taxonomy.snakefile"
 include: "rules/singlem.snakefile"
 include: "rules/combine_read_annotations.snakefile"
 include: "rules/atavide_clusters.snakefile"
+include: "rules/fqchk.snakefile"
 
 rule all:
     input:
@@ -150,6 +151,7 @@ rule all:
         os.path.join(CCMO, "flye.log"),
         os.path.join(STATS, "final_assembly.txt.zip"),
         os.path.join(STATS, "sample_coverage.tsv.zip"),
+        os.path.join(STATS, "av_quality_scores_by_position.tsv"),
         os.path.join(METABAT, "metabat_depth"),
         os.path.join(METABAT, "metabat_bins/metabat_bins.1.fa"),
         os.path.join(CONCOCT, "concoct_output/clustering_gt1000.csv"),
