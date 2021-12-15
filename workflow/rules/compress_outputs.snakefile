@@ -38,19 +38,6 @@ rule compress_prinseq_output:
         """
 
 
-rule compress_unassembled_reads:
-    input:
-        os.path.join(UNASSM, "{sample}.unassembled.R1.fastq"),
-        os.path.join(UNASSM, "{sample}.unassembled.R2.fastq"),
-        os.path.join(UNASSM, "{sample}.unassembled.singles.fastq")
-    output:
-        os.path.join(UNASSM, "{sample}.unassembled.R1.fastq.gz"),
-        os.path.join(UNASSM, "{sample}.unassembled.R2.fastq.gz"),
-        os.path.join(UNASSM, "{sample}.unassembled.singles.fastq.gz")
-    shell:
-        """
-        for F in {input}; do gzip $F; done
-        """
 
 rule compress_wildcard_text:
     input:

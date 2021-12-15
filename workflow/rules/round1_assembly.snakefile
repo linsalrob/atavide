@@ -232,6 +232,23 @@ We also do this in 3 separate threads to take advantage of parallelization
 and to make the command easier
 """
 
+
+rule compress_unassembled_reads:
+    input:
+        os.path.join(UNASSM, "{sample}.unassembled.R1.fastq"),
+        os.path.join(UNASSM, "{sample}.unassembled.R2.fastq"),
+        os.path.join(UNASSM, "{sample}.unassembled.singles.fastq")
+    output:
+        temporary(os.path.join(UNASSM, "{sample}.unassembled.R1.fastq.gz")),
+        temporary(os.path.join(UNASSM, "{sample}.unassembled.R2.fastq.gz")),
+        temporary(os.path.join(UNASSM, "{sample}.unassembled.singles.fastq.gz"))
+    shell:
+        """
+        for F in {input}; do gzip $F; done
+        """
+
+
+
 rule concatenate_R1_unassembled:
     """
     Concat R1 reads
