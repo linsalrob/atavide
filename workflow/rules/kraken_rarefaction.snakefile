@@ -89,7 +89,7 @@ rule kraken_summarize_species:
     input:
         os.path.join(STATS, "ready_to_summarize")
     output:
-        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.kraken_rarefaction.tsv")
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.kraken_species_rarefaction.tsv")
     params:
         frx = FRACTIONS,
         smp = os.path.join(RBADIR, "{sample}", "kraken", "{sample}"),
@@ -105,9 +105,9 @@ rule kraken_summarize_species:
 
 rule join_kraken_subsamples:
     input:
-        expand(os.path.join(RBADIR, "{sample}", "kraken", "{sample}.kraken_rarefaction.tsv"), sample=SAMPLES)
+        expand(os.path.join(RBADIR, "{sample}", "kraken", "{sample}.kraken_species_rarefaction.tsv"), sample=SAMPLES)
     output:
-        os.path.join(STATS, "kraken_rarefaction.tsv")
+        os.path.join(STATS, "kraken_species_rarefaction.tsv")
     params:
         sct = os.path.join(ATAVIDE_DIR, "scripts/joinlists.pl")
     shell:
