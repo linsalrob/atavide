@@ -1,4 +1,8 @@
+name: focus
 channels:
     - bioconda
+    - conda-forge
+    - defaults
 dependencies:
     - focus
+    - python3

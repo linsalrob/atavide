@@ -2,6 +2,6 @@ name: metabat2
 channels:
     - conda-forge
     - bioconda
-    - default
+    - defaults
 dependencies:
     - metabat2

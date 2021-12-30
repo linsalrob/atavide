@@ -1,6 +1,6 @@
 name: h5py
 channels:
     - conda-forge
-    - default
+    - defaults
 dependencies:
     - h5py

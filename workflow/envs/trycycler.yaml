@@ -1,10 +1,12 @@
+name: trycycler
 channels:
-        - conda-forge
-        - bioconda
+    - bioconda
+    - conda-forge
+    - defaults
 dependencies:
-        - miniasm
-        - mash
-        - minimap2
-        - muscle
-        - r-ape
-        - r-phangorn
+    - miniasm
+    - mash
+    - minimap2
+    - muscle
+    - r-ape
+    - r-phangorn

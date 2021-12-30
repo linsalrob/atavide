@@ -1,4 +1,7 @@
+name: superfocus
 channels:
     - bioconda
+    - conda-forge
+    - defaults
 dependencies:
     - super-focus

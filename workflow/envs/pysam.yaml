@@ -1,4 +1,8 @@
+name: pysam
 channels:
     - bioconda
+    - conda-forge
+    - defaults
 dependencies:
     - pysam
+    - python3

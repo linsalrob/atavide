@@ -1,7 +1,7 @@
 name: concoct
 channels:
-    - conda-forge
     - bioconda
-    - default
+    - conda-forge
+    - defaults
 dependencies:
     - concoct

@@ -1,5 +1,7 @@
+name: canu
 channels:
-        - conda-forge
-        - bioconda
+    - bioconda
+    - conda-forge
+    - defaults
 dependencies:
     - canu

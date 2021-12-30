@@ -1,5 +1,7 @@
 name: turbocor
 channels:
     - bioconda
+    - conda-forge
+    - defaults
 dependencies:
     - turbocor
