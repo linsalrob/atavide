@@ -15,14 +15,19 @@ import sys
 
 rule run_superfocus:
     input:
-        os.path.join(PSEQDIR_TWO)
+        r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+        r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
     output:
-        d = directory(os.path.join(RBADIR, "superfocus")),
-        a = temporary(os.path.join(RBADIR, "superfocus", "output_all_levels_and_function.xls")),
-        l1 = temporary(os.path.join(RBADIR, "superfocus", "output_subsystem_level_1.xls")),
-        l2 = temporary(os.path.join(RBADIR, "superfocus", "output_subsystem_level_2.xls")),
-        l3 = temporary(os.path.join(RBADIR, "superfocus", "output_subsystem_level_3.xls")),
+        d = directory(os.path.join(RBADIR, "{sample}", "superfocus")),
+        a = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls")),
+        l1 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_1.xls")),
+        l2 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_2.xls")),
+        l3 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_3.xls")),
+        m81 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.fastq_alignments.m8"),
+        m82 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R2.fastq_alignments.m8"),
     threads: 16
+    params: 
+        TMPDIR=TMPDIR
     resources:
         mem_mb=32000,
         load_superfocus=25,
@@ -31,48 +36,20 @@ rule run_superfocus:
         "../envs/superfocus.yaml"
     shell:
         """
-        superfocus -q {input} -dir {output.d} -a diamond -t {threads} -n 0
+        superfocus -q {input.r1} -q {input.r2} -dir {output.d} -a diamond -t {threads} -n 0 -tmp $(mktemp -d -p {params.TMPDIR})
         """
 
 rule merge_sf_outputs:
     input:
         expand(os.path.join(RBADIR, "{smps}", "superfocus", "output_all_levels_and_function.xls"), smps=SAMPLES)
     output:
-        os.path.join(RBADIR, "superfocus_functions.tsv")
+        os.path.join(RBADIR, "superfocus_functions.tsv.gz")
     params:
-        sct = os.path.join(ATAVIDE_DIR, "scripts/joinsuperfocus.pl")
+        sct = os.path.join(ATAVIDE_DIR, "scripts/joinsuperfocus.pl"),
+        out = os.path.join(RBADIR, "superfocus_functions.tsv")
     shell:
         """
-        perl {params.sct} {input}  > {output}
-        """
-
-
-
-rule zip_sf_output:
-    input:
-        os.path.join(RBADIR, "superfocus_functions.tsv"),
-    output:
-        os.path.join(RBADIR, "superfocus_functions.tsv.zip"),
-    shell:
-        """
-        for F in {input}; do zip $F.zip $F; done
-        """
-
-
-rule zip_compress_superfocus:
-    input:
-        os.path.join(RBADIR, "superfocus", "output_all_levels_and_function.xls"),
-        os.path.join(RBADIR, "superfocus", "output_subsystem_level_1.xls"),
-        os.path.join(RBADIR, "superfocus", "output_subsystem_level_2.xls"),
-        os.path.join(RBADIR, "superfocus", "output_subsystem_level_3.xls"),
-    output:
-        os.path.join(RBADIR, "superfocus", "output_all_levels_and_function.xls.zip"),
-        os.path.join(RBADIR, "superfocus", "output_subsystem_level_1.xls.zip"),
-        os.path.join(RBADIR, "superfocus", "output_subsystem_level_2.xls.zip"),
-        os.path.join(RBADIR, "superfocus", "output_subsystem_level_3.xls.zip"),
-    shell:
-        """
-        for F in {input}; do zip $F.zip $F; done
+        perl {params.sct} {input}  > {params.output} && gzip {params.output}
         """
 
 
@@ -85,9 +62,9 @@ to crate taxonomy tables.
 
 rule superfocus_taxonomy:
     input:
-        m8 = os.path.join(RBADIR, "superfocus", "{sample}.good_out_R1.fastq_alignments.m8"),
+        m8 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.fastq_alignments.m8"),
     output:
-        os.path.join(RBADIR, "superfocus", "{sample}_good_out.taxonomy")
+        temporary(os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy"))
     params:
         t = TAXON
     threads: 4
@@ -106,5 +83,27 @@ rule superfocus_taxonomy:
           --fill-miss-rank | \
         cut -f 1,2,4 > {output}
         """
+
+
+
+
+rule zip_compress_superfocus:
+    input:
+        os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_1.xls"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_2.xls"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_3.xls"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy"),
+    output:
+        os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_1.xls.zip"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_2.xls.zip"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_3.xls.zip"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy.zip"),
+    shell:
+        """
+        for F in {input}; do zip $F.zip $F; done
+        """
+
 
 

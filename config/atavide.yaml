@@ -9,3 +9,4 @@ directories :
         concoct : "binning/concoct"
         metabat : "binning/metabat"
         ncbi_taxonomy: '/home/edwa0468/ncbi/taxonomy/current/'
+        temp_directory: "/scratch/user/edwa0468/tmp"
