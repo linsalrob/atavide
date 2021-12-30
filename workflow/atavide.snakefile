@@ -117,13 +117,14 @@ PATTERN_R2 = '{sample}_R2' + FQEXTN
 
 # read the rules for running different pieces and parts of the code
 include: "rules/qc_qa.snakefile"
-include: "rules/read_annotations.snakefile"
+include: "rules/focus_superfocus.snakefile"
 include: "rules/round1_assembly.snakefile"
 include: "rules/compress_outputs.snakefile"
 include: "rules/round2_assembly.snakefile"
 include: "rules/statistics.snakefile"
 include: "rules/binning.snakefile"
 include: "rules/kraken_taxonomy.snakefile"
+include: "rules/kraken_rarefaction.snakefile"
 include: "rules/singlem.snakefile"
 include: "rules/combine_read_annotations.snakefile"
 include: "rules/atavide_clusters.snakefile"
@@ -131,13 +132,12 @@ include: "rules/fqchk.snakefile"
 
 rule all:
     input:
-        # these rules are from rules/read_annotations.snakefile
         expand(
             [
                 os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
-                os.path.join(RBADIR, "{sample}", "focus", "output_All_levels.csv.zip"),
-                os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"),
-                os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy"),
+                os.path.join(RBADIR, "focus", "output_All_levels.csv.zip"),
+                os.path.join(RBADIR, "superfocus", "output_all_levels_and_function.xls.zip"),
+                # os.path.join(RBADIR, "superfocus", "{sample}_good_out.taxonomy"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv.zip"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv.zip"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"), 
@@ -146,12 +146,12 @@ rule all:
                 os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv")
             ],
                sample=SAMPLES),
-        os.path.join(RBADIR, "superfocus_functions.tsv.zip"),
         os.path.join(REASSM, "merged_contigs.fa"),
         os.path.join(CCMO, "flye.log"),
         os.path.join(STATS, "final_assembly.txt.zip"),
         os.path.join(STATS, "sample_coverage.tsv.zip"),
         os.path.join(STATS, "av_quality_scores_by_position.tsv"),
+        os.path.join(STATS, "kraken_rarefaction.tsv"),
         os.path.join(METABAT, "metabat_depth"),
         os.path.join(METABAT, "metabat_bins/metabat_bins.1.fa"),
         os.path.join(CONCOCT, "concoct_output/clustering_gt1000.csv"),

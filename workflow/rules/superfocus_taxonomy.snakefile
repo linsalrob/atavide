@@ -5,14 +5,15 @@ to crate taxonomy tables.
 
 rule superfocus_taxonomy:
     input:
-        m8 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}.good_out_R1.fastq_alignments.m8"),
+        m8 = os.path.join(RBADIR, "superfocus", "{sample}.good_out_R1.fastq_alignments.m8"),
     output:
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out.taxonomy")
+        os.path.join(RBADIR, "superfocus", "{sample}_good_out.taxonomy")
     params:
         t = TAXON
     threads: 4
     resources:
-        mem_mb=16000
+        mem_mb=16000,
+        load_superfocus=25
     conda:
         "../envs/taxonkit.yaml"
     shell:

@@ -110,7 +110,7 @@ rule merge_assemblies_with_flye:
         "../envs/flye.yaml"
     threads: 32
     resources:
-        mem_mb=512000,
+        mem_mb=128000,
         time=7200,
     shell:
         """

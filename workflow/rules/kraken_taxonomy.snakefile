@@ -11,7 +11,8 @@ rule run_kraken:
         ot = os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv")
     threads: 8
     resources:
-        mem_mb=250000
+        mem_mb=250000,
+        load_kraken=25
     conda:
         "../envs/kraken.yaml"
     shell:
