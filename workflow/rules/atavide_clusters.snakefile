@@ -35,6 +35,8 @@ rule generate_clusters:
         os.path.join(ATAVIDE_BINNING, "stats", "sample_coverage.pearson")
     output:
         os.path.join(ATAVIDE_BINNING, "stats", "atavide_clusters.json")
+    resources:
+        mem_mb=64000
     params:
         sct = os.path.join(ATAVIDE_DIR, "scripts/correlation_clustering.py"),
         pearson_threshold = 0.99
@@ -54,7 +56,7 @@ rule extract_fasta_sequences:
         directory = directory(os.path.join(ATAVIDE_BINNING, "bins"))
     params:
         sct = os.path.join(ATAVIDE_DIR, "scripts/correlation_clusters_to_fasta.py"),
-        pearson_threshold = 0.99
+        pearson_threshold = 0.97
     shell:
         """
         python3 {params.sct} --fasta {input.fa} --clusters {input.cl} \
