@@ -5,4 +5,4 @@ channels:
     - defaults
 dependencies:
     - focus
-    - python3
+    - python
