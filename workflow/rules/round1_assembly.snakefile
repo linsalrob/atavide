@@ -88,9 +88,7 @@ rule combine_contigs:
     resources:
         mem_mb=128000,
     script:
-        """
-        ../scripts/renumber_merge_fasta_smk.py
-        """
+        "../scripts/renumber_merge_fasta_smk.py"
 
 rule index_contigs:
     """

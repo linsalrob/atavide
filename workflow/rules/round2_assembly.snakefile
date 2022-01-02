@@ -88,9 +88,7 @@ rule concatenate_all_assemblies:
     resources:
         mem_mb=128000,
     shell:
-        """
-        ../scripts/renumber_merge_fasta_smk.py
-        """
+        "../scripts/renumber_merge_fasta_smk.py"
 
 rule merge_assemblies_with_flye:
     """
@@ -129,9 +127,7 @@ rule renumber_rename_contigs:
     resources:
         mem_mb=128000,
     shell:
-        """
-        ../scripts/renumber_merge_fasta_smk.py
-        """
+        "../scripts/renumber_merge_fasta_smk.py"
 
 rule index_final_contigs:
     """
