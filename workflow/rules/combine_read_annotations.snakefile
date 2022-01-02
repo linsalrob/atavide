@@ -21,7 +21,7 @@ rule merge_read_annotations:
         sct = os.path.join(ATAVIDE_DIR, "scripts/map_reads_to_contigs.py")
     shell:
         """
-        python3 {params.sct} --bam {input.bam} \
+        python {params.sct} --bam {input.bam} \
             --singlem {input.singlem} \
             --kraken {input.kraken} \
             --output {params.out} \
