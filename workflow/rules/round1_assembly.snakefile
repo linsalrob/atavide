@@ -85,13 +85,12 @@ rule combine_contigs:
     output:
         contigs = os.path.join(ASSDIR, "round1_contigs.fa"),
         ids = os.path.join(ASSDIR, "round1_contigs.ids")
-    params:
-        sct = os.path.join(ATAVIDE_DIR, "scripts/renumber_merge_fasta.py")
-    shell:
+    resources:
+        mem_mb=128000,
+    script:
         """
-        python3 {params.sct} -f {input} -o {output.contigs} -i {output.ids} -v
+        ../scripts/renumber_merge_fasta_smk.py
         """
-
 
 rule index_contigs:
     """

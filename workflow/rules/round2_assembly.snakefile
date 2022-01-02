@@ -87,11 +87,9 @@ rule concatenate_all_assemblies:
         ids = os.path.join(REASSM, "merged_contigs.ids") 
     resources:
         mem_mb=128000,
-    params:
-        sct = os.path.join(ATAVIDE_DIR, "scripts/renumber_merge_fasta.py")
     shell:
         """
-        python3 {params.sct} -f {input} -o {output.contigs} -i {output.ids} -v
+        ../scripts/renumber_merge_fasta_smk.py
         """
 
 rule merge_assemblies_with_flye:
@@ -117,12 +115,30 @@ rule merge_assemblies_with_flye:
         flye --meta --subassemblies {input.contigs} -o {CCMO} --threads {threads}
         """
 
+rule renumber_rename_contigs:
+    """
+    make a single assembly file in the main output directory with the contigs
+    labeled with the sample_id
+    """
+    input:
+        os.path.join(CCMO, "assembly.fasta")
+    output:
+        os.path.join(config['directories']['assemblies'], "assembly.fasta")
+    params:
+        sample_id = SAMPLE_ID
+    resources:
+        mem_mb=128000,
+    shell:
+        """
+        ../scripts/renumber_merge_fasta_smk.py
+        """
+
 rule index_final_contigs:
     """
     build the bowtie2 index of the final assembly
     """
     input:
-        os.path.join(CCMO, "assembly.fasta")
+        os.path.join(config['directories']['assemblies'], "assembly.fasta")
     params:
         baseoutput = os.path.join(RMRD, "final_contigs")
     output:
