@@ -49,7 +49,7 @@ rule merge_sf_outputs:
         out = os.path.join(RBADIR, "superfocus_functions.tsv")
     shell:
         """
-        perl {params.sct} {input}  > {params.output} && gzip {params.output}
+        perl {params.sct} {input}  > {params.out} && gzip {params.out}
         """
 
 
