@@ -1,3 +1,11 @@
+# sample name. Please don't use spaces or special characters here as it 
+# will be used for file names.
+sample_id: 'atavide'
+
+# the description is not currently used, but its good practice to note what you are doing
+sample_description: "analysis and binning by atavide"
+
+
 # These are the directories where we read the data and store the output
 # feel free to change these names
 directories :
@@ -5,8 +13,7 @@ directories :
         prinseq: "QC"
         statistics: "statistics"
         read_based_annotations: "ReadAnnotations" 
-        atavide_binning: "binning/atavide"
-        concoct : "binning/concoct"
-        metabat : "binning/metabat"
+        assemblies: "assemblies"
+        binning: "binning"
         ncbi_taxonomy: '/home/edwa0468/ncbi/taxonomy/current/'
         temp_directory: "/scratch/user/edwa0468/tmp"

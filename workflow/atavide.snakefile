@@ -21,6 +21,7 @@ snakemake --configfile config/process_metagenomes.yaml -s workflow/process_metag
 import os
 import sys
 import socket
+import re
 
 
 READDIR = config['directories']['Reads']
@@ -28,17 +29,21 @@ PSEQDIR = config['directories']['prinseq']
 STATS   = config['directories']['statistics']
 TMPDIR  = config['directories']['temp_directory']
 RBADIR  = config['directories']['read_based_annotations']
-METABAT = config['directories']['metabat']
-CONCOCT = config['directories']['concoct']
-ATAVIDE_BINNING = config['directories']['atavide_binning']
+METABAT = os.path.join(config['directories']['binning'], 'metabat')
+CONCOCT = os.path.join(config['directories']['binning'], 'concoct')
+ATAVIDE_BINNING = os.path.join(config['directories']['binning'], 'atavide')
 
-# atavide binning
-ASSDIR  = os.path.join(config['directories']['atavide_binning'], "assembly.1")
-CRMDIR  = os.path.join(config['directories']['atavide_binning'], "reads.contigs.1")
-UNASSM  = os.path.join(config['directories']['atavide_binning'], "unassembled_reads")
-REASSM  = os.path.join(config['directories']['atavide_binning'], "reassembled_reads")
-CCMO    = os.path.join(config['directories']['atavide_binning'], "final.combined_contigs")
-RMRD    = os.path.join(config['directories']['atavide_binning'], "reads_vs_final_assemblies")
+# assembly directories
+ASSDIR  = os.path.join(config['directories']['assemblies'], "assembly.1")
+CRMDIR  = os.path.join(config['directories']['assemblies'], "reads.contigs.1")
+UNASSM  = os.path.join(config['directories']['assemblies'], "unassembled_reads")
+REASSM  = os.path.join(config['directories']['assemblies'], "reassembled_reads")
+CCMO    = os.path.join(config['directories']['assemblies'], "final.combined_contigs")
+RMRD    = os.path.join(config['directories']['assemblies'], "reads_vs_final_assemblies")
+
+
+SAMPLE_ID=re.sub('\W+','', config['sample_id'])
+
 
 # what is the directory of atavide.snakefile.
 # We need to add that to the pythonpath and also
@@ -154,7 +159,7 @@ rule all:
         os.path.join(STATS, "sample_coverage.tsv.zip"),
         os.path.join(RBADIR, "superfocus_functions.tsv.gz"),
         os.path.join(STATS, "av_quality_scores_by_position.tsv"),
-        os.path.join(STATS, "kraken_rarefaction.tsv"),
+        os.path.join(STATS, "kraken_species_rarefaction.tsv"),
         os.path.join(METABAT, "metabat_depth"),
         os.path.join(METABAT, "metabat_bins/metabat_bins.1.fa"),
         os.path.join(CONCOCT, "concoct_output/clustering_gt1000.csv"),
