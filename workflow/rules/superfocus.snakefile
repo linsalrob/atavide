@@ -14,6 +14,9 @@ import sys
 
 
 rule run_superfocus:
+    # This is the superfocus command for diamond
+    #    superfocus -q {input.r1} -q {input.r2} -dir {output.d} -a diamond -t {threads} -n 0 -tmp $(mktemp -d -p {params.TMPDIR})
+    # but be aware that diamond does not play well run in parallel like snakemake uses.
     input:
         r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
         r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
@@ -36,7 +39,7 @@ rule run_superfocus:
         "../envs/superfocus.yaml"
     shell:
         """
-        superfocus -q {input.r1} -q {input.r2} -dir {output.d} -a diamond -t {threads} -n 0 -tmp $(mktemp -d -p {params.TMPDIR})
+        superfocus -q {input.r1} -q {input.r2} -dir {output.d} -a mmseqs2 -t {threads} -n 0 -tmp $(mktemp -d -p {params.TMPDIR})
         """
 
 rule merge_sf_outputs:

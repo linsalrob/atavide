@@ -4,5 +4,6 @@ channels:
     - conda-forge
     - defaults
 dependencies:
-    - super-focus
+    - super-focus>=1.5
     - python
+    - mmseqs2
