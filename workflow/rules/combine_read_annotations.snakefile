@@ -2,8 +2,8 @@
 
 rule merge_read_annotations:
     input:
-        bam = os.path.join(RMRD, "{sample}.final_contigs.bam"),
-        bai = os.path.join(RMRD, "{sample}.final_contigs.bam.bai"),
+        bam = os.path.join(RMRD, "{sample}." + SAMPLE_ID + ".assembly.bam"),
+        bai = os.path.join(RMRD, "{sample}." + SAMPLE_ID + ".assembly.bam.bai"),
         singlem = os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv"),
         kraken = os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"),
     output:

@@ -49,7 +49,7 @@ rule generate_clusters:
 
 rule extract_fasta_sequences:
     input:
-        fa = os.path.join(CCMO, "assembly.fasta"),
+        fa = os.path.join(config['directories']['assemblies'], f"{SAMPLE_ID}_assembly.fasta"),
         cl = os.path.join(ATAVIDE_BINNING, "stats", "atavide_clusters.json"),
         idx = os.path.join(ATAVIDE_BINNING, "stats", "sample_coverage.contig_index.tsv")
     output:
