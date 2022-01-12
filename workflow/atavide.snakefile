@@ -149,7 +149,7 @@ rule all:
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv.zip"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"), 
                 os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv.zip"),
-                os.path.join(RMRD, "{sample}.final_contigs.bam.bai"),
+                os.path.join(RMRD, "{sample}." + SAMPLE_ID + ".assembly.bam.bai"),
                 os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv")
             ],
                sample=SAMPLES),
@@ -157,6 +157,7 @@ rule all:
         os.path.join(CCMO, "flye.log"),
         os.path.join(STATS, "final_assembly.txt.zip"),
         os.path.join(STATS, "sample_coverage.tsv.zip"),
+        os.path.join(STATS, "sample_rpkm.tsv"),
         os.path.join(RBADIR, "superfocus_functions.tsv.gz"),
         os.path.join(STATS, "av_quality_scores_by_position.tsv"),
         os.path.join(STATS, "kraken_species_rarefaction.tsv"),
