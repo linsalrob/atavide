@@ -161,6 +161,7 @@ rule all:
         os.path.join(RBADIR, "superfocus_functions.tsv.gz"),
         os.path.join(STATS, "av_quality_scores_by_position.tsv"),
         os.path.join(STATS, "kraken_species_rarefaction.tsv"),
+        os.path.join(STATS, "kraken_families.tsv"),
         os.path.join(METABAT, "metabat_depth"),
         os.path.join(METABAT, "metabat_bins/metabat_bins.1.fa"),
         os.path.join(CONCOCT, "concoct_output/clustering_gt1000.csv"),
