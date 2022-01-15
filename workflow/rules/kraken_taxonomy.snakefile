@@ -54,8 +54,9 @@ rule kraken_families:
         os.path.join(RBADIR, "{sample}", "kraken", "{sample}.family_fraction.tsv")
     shell:
         """
-        cat {input} | sed -e 's/Candidatus//' | \ 
-        awk '{if ($4 == "P") {printf "%s\t%f\n", $6, $1}; }' > {output}
+        echo "Family\t{wildcards.sample}" > {output};
+        cat {input} | sed -e 's/Candidatus//' | \
+        awk '{{if ($4 == "P") {{printf "%s\\t%f\\n", $6, $1}}; }}' >> {output}
         """
 
 
@@ -71,7 +72,3 @@ rule join_kraken_families:
         """
         perl {params.sct} -z -h {input} > {output}
         """
-
-
-~
-~
