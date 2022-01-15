@@ -220,16 +220,14 @@ rule count_mapped_reads:
 rule count_rpkm:
     input:
         r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
-        ch = os.path.join(RMRD, "{sample}_contig_hits.tsv")
+        contig_len = os.path.join(STATS, "sequence_lengths.tsv"),
+        hits = os.path.join(RMRD, "{sample}_contig_hits.tsv")
     output:
-        os.path.join(RMRD, "{sample}_rpkm.tsv")
+        rpkm = os.path.join(RMRD, "{sample}_rpkm.tsv")
     resources:
         mem_mb=8000,
-    shell:
-        """
-        READS=$(wc -l {input.r1} | awk '{{print $1/4}}');
-        awk -v R="$READS" '{{printf "%s\\t%f\\n", $1, 1000*$2/R}}' {input.ch} > {output}
-        """
+    script:
+        "../scripts/rpkm.py"
 
 
 
