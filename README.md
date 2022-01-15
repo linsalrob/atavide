@@ -26,10 +26,11 @@ But you will need a [slurm profile](https://fame.flinders.edu.au/blog/2021/08/02
 
 1. Clone this repository from GitHub: `git clone https://github.com/linsalrob/atavide.git`
 2. Set the location of the repository: `export ATAVIDE_DIR=$PWD/atavide/`
-3. Install the [appropriate super-focus database](https://github.com/metageni/SUPER-FOCUS/issues/66) [hint: probably version 2] and set the `SUPERFOCUS_DB` directory to [point to the location of those files](https://github.com/metageni/SUPER-FOCUS#database).
-4. Copy the [NCBI taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) (You really just need the [taxdump.tar.gz](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz) file), and set the `NCBI_TAXONOMY` environment variable to point to the location of those files.
-5. Have a directory of fastq files with both `_R1_` and `_R2_` files in a data directory: `$DATA_DIR/fastq` 
-6. Run atavide: `cd $DATA_DIR && snakemake --configfile $ATAVIDE_DIR/atavide.yaml -s $ATAVIDE_DIR/workflow/atavide.snakefile --profile slurm`
+3. Install a few python dependencies. You probably already have most of these, but the one that trips up is `pysam`. We're working on getting `conda` configured properly to do this automatically. `pip install -r $ATAVIDE_DIR/requirements.txt`
+4. Install the [appropriate super-focus database](https://github.com/metageni/SUPER-FOCUS/issues/66) [hint: probably version 2] and set the `SUPERFOCUS_DB` directory to [point to the location of those files](https://github.com/metageni/SUPER-FOCUS#database).
+5. Copy the [NCBI taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) (You really just need the [taxdump.tar.gz](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz) file), and set the `NCBI_TAXONOMY` environment variable to point to the location of those files.
+6. Have a directory of fastq files with both `_R1_` and `_R2_` files in a data directory: `$DATA_DIR/fastq` 
+7. Run atavide: `cd $DATA_DIR && snakemake --configfile $ATAVIDE_DIR/atavide.yaml -s $ATAVIDE_DIR/workflow/atavide.snakefile --profile slurm`
 
 
 # Current processing steps:
