@@ -32,7 +32,7 @@ rule run_superfocus:
     params: 
         TMPDIR=TMPDIR
     resources:
-        mem_mb=32000,
+        mem_mb=64000,
         load_superfocus=25,
         time=7200
     conda:
