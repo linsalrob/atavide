@@ -88,11 +88,12 @@ if 'host_dbpath' in config['directories'] and config['directories']['host_dbpath
         sys.stderr.write(f"ERROR: You have set host_dbpath as {config['directories']['host_dbpath']} but not defined the db_name\n")
         sys.exit(0)
    
-    if not os.path.exists(
-        os.path.join(config['directories']['host_dbpath'], f"{config['options']['host_dbname']}.1.bt2l") or
-        os.path.join(config['directories']['host_dbpath'], f"{config['options']['host_dbname']}.1.bt2")
-    ):
+    bt2l = os.path.join(config['directories']['host_dbpath'], f"{config['options']['host_dbname']}.1.bt2l")
+    bt2r = os.path.join(config['directories']['host_dbpath'], f"{config['options']['host_dbname']}.1.bt2")
+
+    if not (os.path.exists(bt2l) or os.path.exists(bt2r)):
         sys.stderr.write(f"Error: don't seem to be able to find a bowtie2 index for {config['options']['host_dbname']}\n")
+        sys.stderr.write(f"\tWe looked for either of\n\t{bt2r}  or\n\t{bt2l}\n")
         sys.exit(0)
 
     PSEQDIR_TWO = f"{PSEQDIR}_after_hostremoval"
