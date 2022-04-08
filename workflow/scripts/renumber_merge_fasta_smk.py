@@ -7,6 +7,7 @@ At the end, we output the last number written.
 Written for snakemake so uses those objects not the command line
 """
 
+import os
 from atavide_lib import read_fasta, colours
 
 __author__ = 'Rob Edwards'
@@ -24,14 +25,16 @@ counter = 0
 
 for f in snakemake.input:
     fa = read_fasta(f)
-    for id in fa:
+    for sid in fa:
+        if len(fa[sid]) < 1:
+            continue
         counter += 1
         if hasattr(snakemake, 'params') and hasattr(snakemake.params, 'sample_id'):
-            out.write(f">{snakemake.params.sample_id}_{counter}\n{fa[id]}\n")
-            idmap.write(f"{f}\t{id}\t{snakemake.params.sample_id}_{counter}\n")
+            out.write(f">{snakemake.params.sample_id}_{counter}\n{fa[sid]}\n")
+            idmap.write(f"{f}\t{sid}\t{snakemake.params.sample_id}_{counter}\n")
         else:
-            out.write(f">{counter}\n{fa[id]}\n")
-            idmap.write(f"{f}\t{id}\t{counter}\n")
+            out.write(f">{counter}\n{fa[sid]}\n")
+            idmap.write(f"{f}\t{sid}\t{counter}\n")
 
 idmap.close()
 out.close()
