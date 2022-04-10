@@ -74,7 +74,10 @@ elif 'SUPERFOCUS_DB' in os.environ:
 else:
     sys.stderr.write("FATAL: Please set the location of your superfocus databases using the SUPERFOCUS_DB environment variable\n")
     sys.exit(1)
-
+# how many reads do we want to subsample for superfocus?
+superfocus_subsample_reads = 0
+if 'superfocus_reads' in config['parameters']:
+    superfocus_subsample_reads = config['parameters']['superfocus_reads']
 
 
 # do we want to do host removal?

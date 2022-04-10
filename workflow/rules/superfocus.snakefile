@@ -9,10 +9,6 @@ import os
 import sys
 
 
-
-
-
-
 rule run_superfocus:
     # This is the superfocus command for diamond
     #    superfocus -q {input.r1} -q {input.r2} -dir {output.d} -a diamond -t {threads} -n 0 -tmp $(mktemp -d -p {params.TMPDIR})
