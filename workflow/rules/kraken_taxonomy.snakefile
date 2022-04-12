@@ -46,6 +46,20 @@ rule kraken_taxonomy:
         --fill-miss-rank | cut -f 2,3,7 > {output}
         """
 
+rule kraken_phyla:
+    # extract the kraken families into a two column table
+    input:
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv")
+    output:
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.phyla_fraction.tsv")
+    shell:
+        """
+        echo "Family\t{wildcards.sample}" > {output};
+        cat {input} | sed -e 's/Candidatus//' | \
+        awk '{{if ($4 == "P") {{printf "%s\\t%f\\n", $6, $1}}; }}' >> {output}
+        """
+
+
 rule kraken_families:
     # extract the kraken families into a two column table
     input:
@@ -56,16 +70,54 @@ rule kraken_families:
         """
         echo "Family\t{wildcards.sample}" > {output};
         cat {input} | sed -e 's/Candidatus//' | \
-        awk '{{if ($4 == "P") {{printf "%s\\t%f\\n", $6, $1}}; }}' >> {output}
+        awk '{{if ($4 == "F") {{printf "%s\\t%f\\n", $6, $1}}; }}' >> {output}
         """
 
 
+rule kraken_genera:
+    # extract the kraken families into a two column table
+    input:
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv")
+    output:
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.genera_fraction.tsv")
+    shell:
+        """
+        echo "Family\t{wildcards.sample}" > {output};
+        cat {input} | sed -e 's/Candidatus//' | \
+        awk '{{if ($4 == "G") {{printf "%s\\t%f\\n", $6, $1}}; }}' >> {output}
+        """
+
+
+
+rule join_kraken_phyla:
+    input:
+        expand(os.path.join(RBADIR, "{sample}", "kraken", "{sample}.phyla_fraction.tsv"), sample=SAMPLES)
+    output:
+        os.path.join(STATS, "kraken_phyla.tsv")
+    params:
+        sct = os.path.join(ATAVIDE_DIR, "scripts/joinlists.pl")
+    shell:
+        """
+        perl {params.sct} -z -h {input} > {output}
+        """
 
 rule join_kraken_families:
     input:
         expand(os.path.join(RBADIR, "{sample}", "kraken", "{sample}.family_fraction.tsv"), sample=SAMPLES)
     output:
         os.path.join(STATS, "kraken_families.tsv")
+    params:
+        sct = os.path.join(ATAVIDE_DIR, "scripts/joinlists.pl")
+    shell:
+        """
+        perl {params.sct} -z -h {input} > {output}
+        """
+
+rule join_kraken_genera:
+    input:
+        expand(os.path.join(RBADIR, "{sample}", "kraken", "{sample}.genera_fraction.tsv"), sample=SAMPLES)
+    output:
+        os.path.join(STATS, "kraken_genera.tsv")
     params:
         sct = os.path.join(ATAVIDE_DIR, "scripts/joinlists.pl")
     shell:
