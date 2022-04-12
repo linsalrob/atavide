@@ -43,6 +43,8 @@ with open(snakemake.input.contig_len, 'r') as f:
 with open(snakemake.input.hits, 'r') as f, open(snakemake.output.rpkm, 'w') as out:
     for l in f:
         p = l.strip().split("\t")
+        if p[0] == '*':
+            continue
         if p[0] not in contigs:
             sys.stderr.write(f"ERROR: contig {p[0]} does not have a length.\n")
             contigs[p[0]]=1
