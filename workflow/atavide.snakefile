@@ -165,6 +165,7 @@ rule all:
         os.path.join(RBADIR, "superfocus_functions.tsv.gz"),
         os.path.join(STATS, "av_quality_scores_by_position.tsv"),
         os.path.join(STATS, "kraken_species_rarefaction.tsv"),
+        os.path.join(STATS, "kraken_species.tsv"),
         os.path.join(STATS, "kraken_phyla.tsv"),
         os.path.join(STATS, "kraken_families.tsv"),
         os.path.join(STATS, "kraken_genera.tsv"),
