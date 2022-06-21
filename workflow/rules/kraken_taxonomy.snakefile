@@ -87,6 +87,32 @@ rule kraken_genera:
         awk '{{if ($4 == "G") {{printf "%s\\t%f\\n", $6, $1}}; }}' >> {output}
         """
 
+rule kraken_species:
+    # extract the kraken families into a two column table
+    input:
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv")
+    output:
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.species_fraction.tsv")
+    shell:
+        """
+        echo "Species\t{wildcards.sample}" > {output};
+        cat {input} | sed -e 's/Candidatus//' | \
+        awk '{{if ($4 == "S") {{for (i=6; i<=NF; ++i) {{printf "%s ", $i}} printf "\\t%f\\n", $1}}; }}' \
+        >> {output}
+        """
+
+
+rule join_kraken_species:
+    input:
+        expand(os.path.join(RBADIR, "{sample}", "kraken", "{sample}.species_fraction.tsv"), sample=SAMPLES)
+    output:
+        os.path.join(STATS, "kraken_species.tsv")
+    params:
+        sct = os.path.join(ATAVIDE_DIR, "scripts/joinlists.pl")
+    shell:
+        """
+        perl {params.sct} -z -h {input} > {output}
+        """
 
 
 rule join_kraken_phyla:
