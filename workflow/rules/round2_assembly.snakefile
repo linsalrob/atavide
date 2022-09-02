@@ -59,7 +59,7 @@ rule assemble_unassembled:
         "../envs/megahit.yaml"
     threads: 32
     resources:
-        mem_mb=128000,
+        mem_mb=LARGE_MEM,
         time=7200,
     shell:
         """

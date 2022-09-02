@@ -19,4 +19,7 @@ directories :
         temp_directory: "/scratch/user/edwa0468/tmp"
 
 parameters:
+        # how many reads do you want to use for superfocus
         superfocus_reads: 1000000
+        # how big is your largest memory machine? This is used for the megahit assembly
+        large_mem: "2T"

@@ -41,6 +41,8 @@ REASSM  = os.path.join(config['directories']['assemblies'], "reassembled_reads")
 CCMO    = os.path.join(config['directories']['assemblies'], "final.combined_contigs")
 RMRD    = os.path.join(config['directories']['assemblies'], "reads_vs_final_assemblies")
 
+# how much memory do we have
+LARGE_MEM = config['parameters']['large_mem']
 
 SAMPLE_ID=re.sub('\W+','', config['sample_id'])
 
@@ -140,6 +142,8 @@ include: "rules/singlem.snakefile"
 include: "rules/combine_read_annotations.snakefile"
 include: "rules/atavide_clusters.snakefile"
 include: "rules/fqchk.snakefile"
+
+localrules: all
 
 rule all:
     input:
