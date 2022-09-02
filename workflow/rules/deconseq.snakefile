@@ -136,6 +136,10 @@ rule single_reads_unmapped:
         """
 
 rule compress_host_mapped_sequences:
+    """
+    Compress the host mapped data.
+    I am not sure this rule is used!
+    """
     input:
         os.path.join(INTERIMDIR, "{sample}_R1_mapped_to_host.fastq"),
         os.path.join(INTERIMDIR, "{sample}_R2_mapped_to_host.fastq"),

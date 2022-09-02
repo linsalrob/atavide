@@ -163,6 +163,8 @@ rule all:
                sample=SAMPLES),
         os.path.join(REASSM, "merged_contigs.fa"),
         os.path.join(CCMO, "flye.log"),
+        os.path.join(STATS, "post_qc_statistics.tsv"),
+        os.path.join(STATS, "initial_read_statistics.tsv"),
         os.path.join(STATS, "final_assembly.txt.zip"),
         os.path.join(STATS, "sample_coverage.tsv.zip"),
         os.path.join(STATS, "sample_rpkm.tsv"),
