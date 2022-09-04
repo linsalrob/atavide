@@ -149,16 +149,16 @@ rule all:
     input:
         expand(
             [
-                os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
+                os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
                 os.path.join(RBADIR, "{sample}", "focus", "output_All_levels.csv.zip"),
                 os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"),
                 os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy.zip"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv.zip"),
                 os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv.zip"),
-                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"), 
+                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv.zip"), 
                 os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv.zip"),
                 os.path.join(RMRD, "{sample}." + SAMPLE_ID + ".assembly.bam.bai"),
-                os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv")
+                os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv.zip")
             ],
                sample=SAMPLES),
         os.path.join(REASSM, "merged_contigs.fa"),

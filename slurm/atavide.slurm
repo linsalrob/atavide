@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH --job-name=Atavide
 #SBATCH --time=10-0
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4

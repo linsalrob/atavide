@@ -16,15 +16,28 @@ rule compress_kraken:
     input:
         os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv"),
         os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv"),
-        os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv")
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"),
+        os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.kraken.allmatches.tsv"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.kraken.besthits.tsv"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.singlem.allmatches.tsv"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.singlem.besthits.tsv")
     output:
         os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv.zip"),
         os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv.zip"),
-        os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv.zip")
+        os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv.zip"),
+        os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv.zip"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv.zip"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.kraken.allmatches.tsv.zip"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.kraken.besthits.tsv.zip"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.singlem.allmatches.tsv.zip"),
+        os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.singlem.besthits.tsv.zip")
     shell:
         """
         for F in {input}; do zip $F.zip $F; done
         """
+
 
 
 
