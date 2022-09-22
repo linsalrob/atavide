@@ -17,7 +17,6 @@ rule run_superfocus:
         r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
         r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
     output:
-        d = directory(os.path.join(RBADIR, "{sample}", "superfocus")),
         a = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls")),
         l1 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_1.xls")),
         l2 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_2.xls")),
@@ -26,6 +25,7 @@ rule run_superfocus:
         m82 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R2.fastq_alignments.m8"),
     threads: 16
     params: 
+        d = directory(os.path.join(RBADIR, "{sample}", "superfocus")),
         TMPDIR=TMPDIR
     resources:
         mem_mb=64000,
@@ -35,23 +35,8 @@ rule run_superfocus:
         "../envs/superfocus.yaml"
     shell:
         """
-        superfocus -q {input.r1} -q {input.r2} -dir {output.d} -a mmseqs2 -t {threads} -n 0 -tmp $(mktemp -d -p {params.TMPDIR})
+        superfocus -q {input.r1} -q {input.r2} -dir {params.d} -a mmseqs2 -t {threads} -n 0 -tmp $(mktemp -d -p {params.TMPDIR})
         """
-
-rule merge_sf_outputs:
-    input:
-        expand(os.path.join(RBADIR, "{smps}", "superfocus", "output_all_levels_and_function.xls"), smps=SAMPLES)
-    output:
-        os.path.join(RBADIR, "superfocus_functions.tsv.gz")
-    params:
-        sct = os.path.join(ATAVIDE_DIR, "scripts/joinsuperfocus.pl"),
-        out = os.path.join(RBADIR, "superfocus_functions.tsv")
-    shell:
-        """
-        perl {params.sct} {input}  > {params.out} && gzip {params.out}
-        """
-
-
 
 
 """
@@ -61,7 +46,7 @@ to crate taxonomy tables.
 
 rule superfocus_taxonomy:
     input:
-        m8 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.fastq_alignments.m8"),
+        m8 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.fastq_alignments.m8")
     output:
         temporary(os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy"))
     params:
@@ -84,6 +69,13 @@ rule superfocus_taxonomy:
         """
 
 
+rule sf_taxonomy_best_hit_counts:
+    input:
+        taxfile = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy")
+    output:
+        outfile = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_R1_taxonomy_best_hits.tsv"))
+    script:
+        "../scripts/count_superfocus_taxonomy.py"
 
 
 rule zip_compress_superfocus:
@@ -92,17 +84,27 @@ rule zip_compress_superfocus:
         os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_1.xls"),
         os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_2.xls"),
         os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_3.xls"),
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy"),
     output:
         os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"),
         os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_1.xls.zip"),
         os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_2.xls.zip"),
         os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_3.xls.zip"),
-        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy.zip"),
     shell:
         """
-        for F in {input}; do zip $F.zip $F; done
+        for F in {input}; do zip -j $F.zip $F; done
         """
 
+
+rule zip_compress_sf_taxonomy:
+    input:
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_R1_taxonomy_best_hits.tsv")
+    output:
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy.zip"),
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_R1_taxonomy_best_hits.tsv.zip")
+    shell:
+        """
+        for F in {input}; do zip -j $F.zip $F; done
+        """
 
 

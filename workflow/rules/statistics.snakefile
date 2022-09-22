@@ -66,10 +66,6 @@ rule rpkm:
         """
 
 
-
-
-
-
 rule count_contig_lengths:
     input:
         os.path.join(config['directories']['assemblies'], f"{SAMPLE_ID}_assembly.fasta")
@@ -81,5 +77,37 @@ rule count_contig_lengths:
         """
         python3 {params.sct} -f {input} -ln > {output}
         """
+
+rule sf_taxonomy:
+    input:
+        expand(os.path.join(RBADIR, "{smpl}", "superfocus", "{smpl}_R1_taxonomy_best_hits.tsv"), smpl=SAMPLES)
+    output:
+        os.path.join(STATS, "superfocus_best_hits_taxonomy.tsv")
+    resources:
+        mem_mb=64000
+    params:
+        sct = os.path.join(ATAVIDE_DIR, "scripts/joinlists.pl")
+    shell:
+        """
+        perl {params.sct} -t {input} > {output}
+        """
+
+
+rule merge_sf_outputs:
+    input:
+        expand(os.path.join(RBADIR, "{smps}", "superfocus", "output_all_levels_and_function.xls"), smps=SAMPLES)
+    output:
+        os.path.join(STATS, "superfocus_functions.tsv.gz")
+    params:
+        sct = os.path.join(ATAVIDE_DIR, "scripts/joinsuperfocus.pl"),
+        out = os.path.join(STATS, "superfocus_functions.tsv")
+    shell:
+        """
+        perl {params.sct} {input}  > {params.out} && gzip {params.out}
+        """
+
+
+
+
 
 

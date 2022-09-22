@@ -72,7 +72,7 @@ rule zip_compress_focus:
         os.path.join(RBADIR, "{sample}", "focus", "output_Species_tabular.csv.zip")
     shell:
         """
-        for F in {input}; do zip $F.zip $F; done
+        for F in {input}; do zip -j $F.zip $F; done
         """
 
 

@@ -35,7 +35,7 @@ rule compress_kraken:
         os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.singlem.besthits.tsv.zip")
     shell:
         """
-        for F in {input}; do zip $F.zip $F; done
+        for F in {input}; do zip -j $F.zip $F; done
         """
 
 
@@ -48,7 +48,7 @@ rule compress_wildcard_text:
         os.path.join(RMRD, "{sample}_contig_hits.tsv.zip"),
     shell:
         """
-        for F in {input}; do zip $F.zip $F; done
+        for F in {input}; do zip -j $F.zip $F; done
         """
 
 rule compress_text_files:
@@ -62,7 +62,7 @@ rule compress_text_files:
         os.path.join(STATS, "sequence_lengths.tsv.zip")
     shell:
         """
-        for F in {input}; do zip $F.zip $F; done
+        for F in {input}; do zip -j $F.zip $F; done
         """
 
 

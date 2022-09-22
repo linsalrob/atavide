@@ -19,6 +19,7 @@ with open(snakemake.output.stats, 'w') as out:
     print("File\tNumber of Sequences\tTotal bp\tShortest length\tLongest length\tN50\tN75\tAuN", file=out)
     for f in os.listdir(snakemake.input.fqdir):
         if 'fastq' in f or 'fq' in f:
+            print(f"Counting {f}", file=sys.stderr)
             lens = []
             for (sid, label, seq, qual) in stream_fastq(os.path.join(snakemake.input.fqdir, f)):
                 lens.append(len(seq))
@@ -44,5 +45,5 @@ with open(snakemake.output.stats, 'w') as out:
             print(f"{f}\t{len(lens):,}\t{length:,}\t{lens[0]:,}\t" \
                   + f"{lens[-1]:,}\t{n50:,}\t{n75:,}\t{int(auN):,}", file=out)
         else:
-            sys.stderr.write(f"Skipped {os.path.join(subdir, f)}. Does not appear to be fastq\n")
+            print(f"Skipped {os.path.join(subdir, f)}. Does not appear to be fastq", file=sys.stderr)
 
