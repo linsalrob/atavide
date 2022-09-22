@@ -5,7 +5,7 @@ rule run_singlem:
         r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
     output:
         d = directory(os.path.join(RBADIR, "{sample}", "singlem")),
-        otu = temporary(os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv"))
+        otu = os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv")
     conda:
         "../envs/singlem.yaml"
     threads: 8

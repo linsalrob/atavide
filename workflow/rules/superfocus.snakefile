@@ -17,7 +17,7 @@ rule run_superfocus:
         r1 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq"),
         r2 = os.path.join(PSEQDIR_TWO, "{sample}_good_out_R2.fastq")
     output:
-        a = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls")),
+        a = os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls"),
         l1 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_1.xls")),
         l2 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_2.xls")),
         l3 = temporary(os.path.join(RBADIR, "{sample}", "superfocus", "output_subsystem_level_3.xls")),
@@ -48,7 +48,7 @@ rule superfocus_taxonomy:
     input:
         m8 = os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.fastq_alignments.m8")
     output:
-        temporary(os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy"))
+        os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy")
     params:
         t = TAXON
     threads: 4

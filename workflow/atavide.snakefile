@@ -132,7 +132,7 @@ include: "rules/qc_qa.snakefile"
 include: "rules/focus.snakefile"
 include: "rules/superfocus.snakefile"
 include: "rules/round1_assembly.snakefile"
-include: "rules/compress_outputs.snakefile"
+#include: "rules/compress_outputs.snakefile" ## we are not compressing outputs because it is a pia!
 include: "rules/round2_assembly.snakefile"
 include: "rules/statistics.snakefile"
 include: "rules/binning.snakefile"
@@ -150,23 +150,23 @@ rule all:
         expand(
             [
                 os.path.join(PSEQDIR_TWO, "{sample}_good_out_R1.fastq.gz"),
-                os.path.join(RBADIR, "{sample}", "focus", "output_All_levels.csv.zip"),
-                os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls.zip"),
-                os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy.zip"),
-                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv.zip"),
-                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv.zip"),
-                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv.zip"), 
-                os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv.zip"),
+                os.path.join(RBADIR, "{sample}", "focus", "output_All_levels.csv"),
+                os.path.join(RBADIR, "{sample}", "superfocus", "output_all_levels_and_function.xls"),
+                os.path.join(RBADIR, "{sample}", "superfocus", "{sample}_good_out_R1.taxonomy"),
+                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.report.tsv"),
+                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.output.tsv"),
+                os.path.join(RBADIR, "{sample}", "kraken", "{sample}.taxonomy.tsv"), 
+                os.path.join(RBADIR, "{sample}", "singlem", "singlem_otu_table.tsv"),
                 os.path.join(RMRD, "{sample}." + SAMPLE_ID + ".assembly.bam.bai"),
-                os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv.zip")
+                os.path.join(RBADIR, "{sample}", "{sample}_contig_taxonomy.comparison.tsv")
             ],
                sample=SAMPLES),
         os.path.join(REASSM, "merged_contigs.fa"),
         os.path.join(CCMO, "flye.log"),
         os.path.join(STATS, "post_qc_statistics.tsv"),
         os.path.join(STATS, "initial_read_statistics.tsv"),
-        os.path.join(STATS, "final_assembly.txt.zip"),
-        os.path.join(STATS, "sample_coverage.tsv.zip"),
+        os.path.join(STATS, "final_assembly.txt"),
+        os.path.join(STATS, "sample_coverage.tsv"),
         os.path.join(STATS, "sample_rpkm.tsv"),
         os.path.join(STATS, "superfocus_functions.tsv.gz"),
         os.path.join(STATS, "superfocus_best_hits_taxonomy.tsv"),
